@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON PRISONER // v3.0</title>
+    
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script src="https://unpkg.com/blockly/blocks.min.js"></script>
+    <script src="https://unpkg.com/blockly/javascript.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+
+        :root {
+            --bg-dark: #050510;
+            --bg-panel: rgba(20, 20, 35, 0.7);
+            --primary-neon: #00f3ff;
+            --secondary-neon: #bc13fe;
+            --accent-neon: #00ff9d;
+            --text-main: #e0e0ff;
+            --text-dim: #8a8ab5;
+            --border-glow: 0 0 10px rgba(0, 243, 255, 0.3);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.1) 0%, transparent 20%),
+                linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0%, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: linear-gradient(90deg, var(--primary-neon), #fff, var(--secondary-neon));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        /* --- Layout --- */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(10px);
+            border: var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-neon), var(--secondary-neon));
+            box-shadow: 0 0 10px var(--primary-neon);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-neon);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::after {
+            content: '';
+            flex-grow: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-left: 1rem;
+        }
+
+        /* --- Controls & Inputs --- */
+        .controls-bar {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        button,
+        .btn-label {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--primary-neon);
+            color: var(--primary-neon);
+            padding: 0.8rem 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            display: inline-block;
+            text-align: center;
+        }
+
+        button:hover,
+        .btn-label:hover {
+            background: var(--primary-neon);
+            color: #000;
+            box-shadow: 0 0 20px var(--primary-neon);
+        }
+
+        button.btn-accent {
+            border-color: var(--secondary-neon);
+            color: var(--secondary-neon);
+            background: rgba(188, 19, 254, 0.1);
+        }
+
+        button.btn-accent:hover {
+            background: var(--secondary-neon);
+            color: #fff;
+            box-shadow: 0 0 20px var(--secondary-neon);
+        }
+
+        button.btn-success {
+            border-color: var(--accent-neon);
+            color: var(--accent-neon);
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        button.btn-success:hover {
+            background: var(--accent-neon);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-neon);
+        }
+
+        select,
+        input[type="number"] {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #444;
+            color: #fff;
+            padding: 0.8rem;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: var(--primary-neon);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        /* --- Workspace --- */
+        #blockly-workspace {
+            height: 600px;
+            width: 100%;
+            border: 1px solid #333;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Blockly Overrides for Dark Theme */
+        .blocklyToolboxDiv {
+            background-color: #1a1a2e !important;
+            color: #fff;
+            border-right: 1px solid #333;
+        }
+
+        .blocklyFlyoutBackground {
+            fill: #1a1a2e !important;
+            fill-opacity: 0.9 !important;
+        }
+
+        .blocklyTreeLabel {
+            color: #fff !important;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        /* --- Results --- */
+        .score-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .score-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .score-card h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .score-value {
+            font-size: 3.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            text-shadow: 0 0 15px currentColor;
+        }
+
+        .score-p1 {
+            color: var(--primary-neon);
+        }
+
+        .score-p2 {
+            color: var(--secondary-neon);
+        }
+
+        .log-container {
+            height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-move {
+            font-weight: bold;
+        }
+
+        .move-cooperate {
+            color: var(--accent-neon);
+        }
+
+        .move-defect {
+            color: #ff0055;
+        }
+
+        /* --- Tournament Section --- */
+        .tournament-section {
+            margin-top: 2rem;
+            grid-column: 1 / -1;
+        }
+
+        .strategy-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .strategy-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .strategy-item:hover {
+            border-color: var(--primary-neon);
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--primary-neon);
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .results-table th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-dim);
+            border-bottom: 1px solid #444;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .results-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .rank-1 {
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        .rank-2 {
+            color: #c0c0c0;
+        }
+
+        .rank-3 {
+            color: #cd7f32;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #050510;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Neon Prisoner</h1>
+            <div class="subtitle">Algorithmic Game Theory Simulation</div>
+        </header>
+
+        <div class="main-grid">
+            <div class="panel">
+                <h2>Strategy Design Interface</h2>
+                <div id="blockly-workspace"></div>
+                
+                <div class="controls-bar">
+                    <button id="new-algorithm" class="btn-accent">New Strategy</button>
+                    <button id="clear-workspace">Clear</button>
+                    <button id="save-strategy">Download XML</button>
+                    
+                    <label class="btn-label" for="upload-strategy">Upload XML</label>
+                    <input type="file" id="upload-strategy" accept=".xml" style="display: none;">
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Battle Simulation</h2>
+                
+                <div class="score-board">
+                    <div class="score-card">
+                        <h3>Your Score</h3>
+                        <div id="your-score" class="score-value score-p1">0</div>
+                    </div>
+                    <div class="score-card">
+                        <h3>Opponent</h3>
+                        <div id="opponent-score" class="score-value score-p2">0</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="color: var(--text-dim); font-size: 0.9rem;">OPPONENT STRATEGY</label>
+                    <select id="opponent-strategy" style="margin-top: 0.5rem;"></select>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="color: var(--text-dim); font-size: 0.9rem;">ROUNDS</label>
+                    <input type="number" id="rounds" value="50" min="1" max="1000" style="margin-top: 0.5rem;">
+                </div>
+
+                <button id="test-algorithm" class="btn-success" style="width: 100%;">Run Simulation</button>
+
+                <div style="margin-top: 1.5rem;">
+                    <label style="color: var(--text-dim); font-size: 0.9rem; display:block; margin-bottom:0.5rem;">BATTLE LOG</label>
+                    <div id="game-log-content" class="log-container"></div>
+                </div>
+            </div>
+
+            <div class="panel tournament-section">
+                <h2>Grand Tournament</h2>
+                <p style="color: var(--text-dim);">Select strategies to compete in a Round Robin tournament.</p>
+
+                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+                    <label class="btn-label" for="upload-tournament-strategies">
+                        + Upload Strategies
+                    </label>
+                    <input type="file" id="upload-tournament-strategies" accept=".xml" multiple style="display: none;">
+                    <span style="color: #666; font-size: 0.9rem;">(Upload multiple XML files)</span>
+                </div>
+
+                <div id="uploaded-files-list" class="strategy-list">
+                    </div>
+
+                <div id="preset-strategies-list" class="strategy-list" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                    </div>
+
+                <button id="run-tournament" class="btn-accent" style="width: 100%; margin-top: 1rem;">Run Tournament</button>
+
+                <div id="tournament-results-container" style="display: none; margin-top: 2rem;">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Strategy Name</th>
+                                <th style="text-align: right;">Total Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tournament-results-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- RECONSTRUCTED MISSING BLOCK DEFINITION ---
+        Blockly.Blocks['prisoner_decision'] = {
+            init: function () {
+                this.appendDummyInput()
+                    .appendField("Decision")
+                    .appendField(new Blockly.FieldDropdown([["COOPERATE", "COOPERATE"], ["DEFECT", "DEFECT"]]), "DECISION");
+                this.setOutput(true, "Decision");
+                this.setColour(180);
+            }
+        };
+
+        Blockly.Blocks['opponent_last_move'] = {
+            init: function () {
+                this.appendDummyInput().appendField("Opponent's Last Move");
+                this.setOutput(true, "Decision");
+                this.setColour(230);
+            }
+        };
+
+        Blockly.Blocks['round_number'] = {
+            init: function () {
+                this.appendDummyInput().appendField("Round Number");
+                this.setOutput(true, "Number");
+                this.setColour(280);
+            }
+        };
+
+        Blockly.Blocks['return_decision'] = {
+            init: function () {
+                this.appendValueInput("DECISION").setCheck("Decision").appendField("return");
+                this.setPreviousStatement(true, null);
+                this.setColour(180);
+            }
+        };
+
+        Blockly.JavaScript['prisoner_decision'] = (b) => [`'${b.getFieldValue('DECISION')}'`, Blockly.JavaScript.ORDER_ATOMIC];
+        
+        Blockly.JavaScript['opponent_last_move'] = (b) => ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC];
+        
+        Blockly.JavaScript['round_number'] = (b) => ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC];
+
+        Blockly.JavaScript['return_decision'] = (b) => `return ${Blockly.JavaScript.valueToCode(b, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'"};\n`;
+
+        Blockly.JavaScript['variables_set'] = function (b) {
+            return `variables['${Blockly.JavaScript.variableDB_.getName(b.getFieldValue('VAR'), 'VARIABLE')}']=${Blockly.JavaScript.valueToCode(b, 'VALUE', Blockly.JavaScript.ORDER_ASSIGNMENT) || '0'};\n`
+        };
+
+        Blockly.JavaScript['variables_get'] = function (b) {
+            return [`variables['${Blockly.JavaScript.variableDB_.getName(b.getFieldValue('VAR'), 'VARIABLE')}']`, Blockly.JavaScript.ORDER_ATOMIC]
+        };
+
+        Blockly.JavaScript['math_change'] = function (b) {
+            const v = Blockly.JavaScript.variableDB_.getName(b.getFieldValue('VAR'), 'VARIABLE');
+            const d = Blockly.JavaScript.valueToCode(b, 'DELTA', Blockly.JavaScript.ORDER_ADDITION) || '0';
+            return `variables['${v}']=(typeof variables['${v}']==='number'?variables['${v}']:0)+Number(${d});\n`
+        };
+
+        // --- Toolbox Definition ---
+        const toolbox = {
+            "kind": "categoryToolbox",
+            "contents": [{
+                "kind": "category",
+                "name": "Decisions",
+                "colour": "180",
+                "contents": [{ "kind": "block", "type": "prisoner_decision" }, { "kind": "block", "type": "return_decision" }]
+            },
+            {
+                "kind": "category",
+                "name": "Game State",
+                "colour": "230",
+                "contents": [{ "kind": "block", "type": "opponent_last_move" }, { "kind": "block", "type": "round_number" }]
+            },
+            {
+                "kind": "category",
+                "name": "Logic",
+                "colour": "210",
+                "contents": [{ "kind": "block", "type": "controls_if" }, { "kind": "block", "type": "logic_compare" }]
+            },
+            {
+                "kind": "category",
+                "name": "Math",
+                "colour": "280",
+                "contents": [{ "kind": "block", "type": "math_number" }, { "kind": "block", "type": "math_arithmetic" }, { "kind": "block", "type": "math_random_float" }]
+            },
+            {
+                "kind": "category", "name": "Variables", "custom": "VARIABLE", "colour": "330"
+            }]
+        };
+
+        // --- Game Engine ---
+        class GameEngine {
+            constructor() {
+                // ONLY RANDOM STRATEGY ALLOWED AS PRESET
+                this.strats = {
+                    'random': () => Math.random() > 0.5 ? 'COOPERATE' : 'DEFECT'
+                };
+            }
+
+            run(algorithm, vs, rounds) {
+                const history = [];
+                let p1s = 0, p2s = 0;
+                const persistentContext = { variables: {} };
+
+                for (let r = 1; r <= rounds; r++) {
+                    const p1s_moves = history.map(h => h.p1);
+                    const p1Ctx = {
+                        roundNumber: r,
+                        opponentLastMove: history.length > 0 ? history[history.length - 1].p2 : null,
+                        variables: persistentContext.variables
+                    };
+                    const p2Ctx = {
+                        roundNumber: r,
+                        opponentLastMove: history.length > 0 ? history[history.length - 1].p1 : null,
+                        opponentHistory: p1s_moves
+                    };
+
+                    try {
+                        const p1m = algorithm(p1Ctx);
+                        const p2m = this.strats[vs](p2Ctx);
+                        const sc = this.scores(p1m, p2m);
+                        p1s += sc.p1;
+                        p2s += sc.p2;
+                        history.push({ r, p1: p1m, p2: p2m, p1Score: sc.p1, p2Score: sc.p2 });
+                    } catch (e) {
+                        alert("Error running algorithm: " + e.message);
+                        return null;
+                    }
+                }
+                return { history, p1s, p2s };
+            }
+
+            scores(m1, m2) {
+                if (m1 === 'COOPERATE' && m2 === 'COOPERATE') return { p1: 3, p2: 3 };
+                if (m1 === 'DEFECT' && m2 === 'COOPERATE') return { p1: 5, p2: 0 };
+                if (m1 === 'COOPERATE' && m2 === 'DEFECT') return { p1: 0, p2: 5 };
+                return { p1: 1, p2: 1 };
+            }
+        }
+
+        // --- Application Setup ---
+        let workspace = null;
+        const gameEngine = new GameEngine();
+        let uploadedStrategies = [];
+
+        window.addEventListener('load', () => {
+            // Dark Theme for Blockly
+            workspace = Blockly.inject('blockly-workspace', {
+                toolbox: toolbox,
+                trashcan: true,
+                theme: Blockly.Themes.Dark
+            });
+            loadDefaultAlgorithm();
+            setupEventListeners();
+            setupUI();
+        });
+
+        function setupUI() {
+            const opponentSelect = document.getElementById('opponent-strategy');
+            opponentSelect.innerHTML = '';
+            Object.keys(gameEngine.strats).forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name.toUpperCase();
+                opponentSelect.appendChild(option);
+            });
+
+            const presetsContainer = document.getElementById('preset-strategies-list');
+            presetsContainer.innerHTML = Object.keys(gameEngine.strats).map(name => 
+                `<div class="strategy-item"><input type="checkbox" id="preset-${name}" value="${name}" checked> <label for="preset-${name}" style="cursor:pointer">${name.toUpperCase()}</label></div>`
+            ).join('');
+        }
+
+        function setupEventListeners() {
+            document.getElementById('new-algorithm').addEventListener('click', loadDefaultAlgorithm);
+            document.getElementById('test-algorithm').addEventListener('click', testAlgorithm);
+            document.getElementById('clear-workspace').addEventListener('click', () => {
+                if (confirm('Clear workspace?')) workspace.clear();
+            });
+            document.getElementById('save-strategy').addEventListener('click', saveStrategy);
+            document.getElementById('upload-strategy').addEventListener('change', loadStrategy);
+            document.getElementById('upload-tournament-strategies').addEventListener('change', handleTournamentFileUpload);
+            document.getElementById('run-tournament').addEventListener('click', runTournament);
+        }
+
+        function loadDefaultAlgorithm() {
+            workspace.clear();
+            // Simple default: Cooperate first, then copy
+            const xml = `<xml xmlns
