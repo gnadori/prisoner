@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRISONER COMIC // v3.7 (Generator Fix)</title>
+    <title>PRISONER COMIC // v3.8 (Final Fix)</title>
     
-    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-    <script src="https://unpkg.com/blockly/blocks.min.js"></script>
-    <script src="https://unpkg.com/blockly/javascript.min.js"></script>
+    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
     <script src="https://unpkg.com/blockly/msg/en.js"></script>
 
     <style>
@@ -21,6 +21,7 @@
             --success-color: #00cc00;
             --text-color: #000000;
             --border-width: 3px;
+            --shadow-offset: 5px;
         }
 
         * { box-sizing: border-box; }
@@ -44,7 +45,7 @@
         .hero-image {
             max-width: 600px; width: 100%;
             border: var(--border-width) solid var(--border-color);
-            box-shadow: 5px 5px 0px var(--border-color);
+            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
             margin-bottom: 1.5rem; background: #fff;
             min-height: 150px; display: flex; align-items: center; justify-content: center;
             font-family: 'Patrick Hand'; font-size: 2rem; color: #ccc;
@@ -243,29 +244,13 @@
     </div>
 
     <script>
-        // --- 1. FORCE GENERATOR DEFINITIONS (Global Scope) ---
-        // This ensures they are registered immediately when the script parses
+        // --- 1. Define Blocks & Generators ---
+        // We define these immediately. The check for 'Blockly' ensures library is loaded.
         
-        function ensureGenerators() {
-            if(typeof Blockly === 'undefined' || typeof Blockly.JavaScript === 'undefined') return;
+        function defineBlocksAndGenerators() {
+            if (typeof Blockly === 'undefined') return;
 
-            Blockly.JavaScript['prisoner_decision'] = function(block) { 
-                return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC]; 
-            };
-            Blockly.JavaScript['opponent_last_move'] = function(block) { 
-                return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC]; 
-            };
-            Blockly.JavaScript['round_number'] = function(block) { 
-                return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC]; 
-            };
-            Blockly.JavaScript['return_decision'] = function(block) { 
-                var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
-                return "return " + code + ";\n";
-            };
-        }
-
-        // --- 2. BLOCK DEFINITIONS ---
-        if(typeof Blockly !== 'undefined') {
+            // --- BLOCKS ---
             Blockly.Blocks['prisoner_decision'] = {
                 init: function() {
                     this.appendDummyInput().appendField("Decision").appendField(new Blockly.FieldDropdown([["COOPERATE","COOPERATE"], ["DEFECT","DEFECT"]]), "DECISION");
@@ -294,9 +279,30 @@
                     this.setColour(160);
                 }
             };
+
+            // --- GENERATORS ---
+            // Ensure the generator object exists
+            if (typeof Blockly.JavaScript === 'undefined') {
+                console.error("Blockly.JavaScript is missing!");
+                return;
+            }
+
+            Blockly.JavaScript['prisoner_decision'] = function(block) { 
+                return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC]; 
+            };
+            Blockly.JavaScript['opponent_last_move'] = function(block) { 
+                return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC]; 
+            };
+            Blockly.JavaScript['round_number'] = function(block) { 
+                return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC]; 
+            };
+            Blockly.JavaScript['return_decision'] = function(block) { 
+                var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
+                return "return " + code + ";\n";
+            };
         }
 
-        // --- 3. GAME ENGINE ---
+        // --- 2. GAME ENGINE ---
         class GameEngine {
             constructor() {
                 this.strats = {
@@ -338,16 +344,16 @@
             }
         }
 
-        // --- 4. SETUP & UI ---
+        // --- 3. SETUP & UI ---
         let workspace = null;
         const gameEngine = new GameEngine();
         let uploadedStrategies = [];
 
         window.addEventListener('load', () => {
             if(typeof Blockly === 'undefined') return alert("Library load error");
-
-            // Register generators again just to be sure
-            ensureGenerators();
+            
+            // Register Definitions
+            defineBlocksAndGenerators();
 
             // Initialize UI
             const sel = document.getElementById('opponent-strategy');
@@ -389,11 +395,12 @@
         }
 
         function testAlgorithm() {
-            let code = "";
-            // CRITICAL FIX: Re-register generators immediately before generation
-            ensureGenerators();
+            // Define Generators AGAIN just to be absolutely safe against race conditions
+            defineBlocksAndGenerators();
 
+            let code = "";
             try {
+                // Init generator
                 if(Blockly.JavaScript.init) Blockly.JavaScript.init(workspace);
                 code = Blockly.JavaScript.workspaceToCode(workspace);
             } catch(e) { return alert("Code Generation Error: " + e.message); }
@@ -466,9 +473,9 @@
             document.getElementById('tournament-results-container').style.display = 'none';
 
             setTimeout(() => {
-                // Re-register generators for tournament execution too
-                ensureGenerators();
-                
+                // Re-register generators for tournament too
+                defineBlocksAndGenerators();
+
                 const players = [];
                 // Gather players
                 document.querySelectorAll('#preset-strategies-list input:checked').forEach(i => players.push({name: i.value, fn: gameEngine.strats[i.value], score:0}));
@@ -490,7 +497,7 @@
                 // Round Robin
                 for(let i=0; i<players.length; i++) {
                     for(let j=i; j<players.length; j++) {
-                        // Tournament logic: run custom vs custom
+                        // Custom loop to avoid context sharing issues
                         let p1s=0, p2s=0; 
                         let h1=[], h2=[];
                         for(let round=1; round<=100; round++) {
