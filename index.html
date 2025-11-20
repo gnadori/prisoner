@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRISONER COMIC // v3.6 (Fixed)</title>
+    <title>PRISONER COMIC // v3.7 (Generator Fix)</title>
     
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
     <script src="https://unpkg.com/blockly/blocks.min.js"></script>
@@ -15,14 +15,12 @@
 
         :root {
             --bg-color: #ffffff;
-            --panel-bg: #ffffff;
             --border-color: #000000;
-            --primary-accent: #ff0000;   /* Red shirt */
-            --secondary-accent: #0099ff; /* Blue shirt */
+            --primary-accent: #ff0000;   
+            --secondary-accent: #0099ff; 
             --success-color: #00cc00;
             --text-color: #000000;
             --border-width: 3px;
-            --shadow-offset: 5px;
         }
 
         * { box-sizing: border-box; }
@@ -46,7 +44,7 @@
         .hero-image {
             max-width: 600px; width: 100%;
             border: var(--border-width) solid var(--border-color);
-            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
+            box-shadow: 5px 5px 0px var(--border-color);
             margin-bottom: 1.5rem; background: #fff;
             min-height: 150px; display: flex; align-items: center; justify-content: center;
             font-family: 'Patrick Hand'; font-size: 2rem; color: #ccc;
@@ -65,10 +63,10 @@
         .main-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2rem; }
         
         .panel {
-            background: var(--panel-bg);
+            background: #fff;
             border: var(--border-width) solid var(--border-color);
             padding: 2rem;
-            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
+            box-shadow: 5px 5px 0px var(--border-color);
             border-radius: 0;
         }
 
@@ -245,46 +243,60 @@
     </div>
 
     <script>
-        // --- 2. CUSTOM BLOCK DEFINITIONS (Must happen before inject) ---
-        Blockly.Blocks['prisoner_decision'] = {
-            init: function() {
-                this.appendDummyInput().appendField("Decision").appendField(new Blockly.FieldDropdown([["COOPERATE","COOPERATE"], ["DEFECT","DEFECT"]]), "DECISION");
-                this.setOutput(true, "Decision");
-                this.setColour(160);
-            }
-        };
-        Blockly.Blocks['opponent_last_move'] = {
-            init: function() {
-                this.appendDummyInput().appendField("Opponent's Last Move");
-                this.setOutput(true, "Decision");
-                this.setColour(230);
-            }
-        };
-        Blockly.Blocks['round_number'] = {
-            init: function() {
-                this.appendDummyInput().appendField("Round Number");
-                this.setOutput(true, "Number");
-                this.setColour(280);
-            }
-        };
-        Blockly.Blocks['return_decision'] = {
-            init: function() {
-                this.appendValueInput("DECISION").setCheck("Decision").appendField("Play Card:");
-                this.setPreviousStatement(true, null);
-                this.setColour(160);
-            }
-        };
+        // --- 1. FORCE GENERATOR DEFINITIONS (Global Scope) ---
+        // This ensures they are registered immediately when the script parses
+        
+        function ensureGenerators() {
+            if(typeof Blockly === 'undefined' || typeof Blockly.JavaScript === 'undefined') return;
 
-        // --- 3. GENERATORS ---
-        Blockly.JavaScript['prisoner_decision'] = function(block) { return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC]; };
-        Blockly.JavaScript['opponent_last_move'] = function(block) { return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC]; };
-        Blockly.JavaScript['round_number'] = function(block) { return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC]; };
-        Blockly.JavaScript['return_decision'] = function(block) { 
-            var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
-            return "return " + code + ";\n";
-        };
+            Blockly.JavaScript['prisoner_decision'] = function(block) { 
+                return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC]; 
+            };
+            Blockly.JavaScript['opponent_last_move'] = function(block) { 
+                return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC]; 
+            };
+            Blockly.JavaScript['round_number'] = function(block) { 
+                return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC]; 
+            };
+            Blockly.JavaScript['return_decision'] = function(block) { 
+                var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
+                return "return " + code + ";\n";
+            };
+        }
 
-        // --- 4. GAME ENGINE ---
+        // --- 2. BLOCK DEFINITIONS ---
+        if(typeof Blockly !== 'undefined') {
+            Blockly.Blocks['prisoner_decision'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("Decision").appendField(new Blockly.FieldDropdown([["COOPERATE","COOPERATE"], ["DEFECT","DEFECT"]]), "DECISION");
+                    this.setOutput(true, "Decision");
+                    this.setColour(160);
+                }
+            };
+            Blockly.Blocks['opponent_last_move'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("Opponent's Last Move");
+                    this.setOutput(true, "Decision");
+                    this.setColour(230);
+                }
+            };
+            Blockly.Blocks['round_number'] = {
+                init: function() {
+                    this.appendDummyInput().appendField("Round Number");
+                    this.setOutput(true, "Number");
+                    this.setColour(280);
+                }
+            };
+            Blockly.Blocks['return_decision'] = {
+                init: function() {
+                    this.appendValueInput("DECISION").setCheck("Decision").appendField("Play Card:");
+                    this.setPreviousStatement(true, null);
+                    this.setColour(160);
+                }
+            };
+        }
+
+        // --- 3. GAME ENGINE ---
         class GameEngine {
             constructor() {
                 this.strats = {
@@ -326,13 +338,16 @@
             }
         }
 
-        // --- 5. SETUP & UI ---
+        // --- 4. SETUP & UI ---
         let workspace = null;
         const gameEngine = new GameEngine();
         let uploadedStrategies = [];
 
         window.addEventListener('load', () => {
             if(typeof Blockly === 'undefined') return alert("Library load error");
+
+            // Register generators again just to be sure
+            ensureGenerators();
 
             // Initialize UI
             const sel = document.getElementById('opponent-strategy');
@@ -375,8 +390,10 @@
 
         function testAlgorithm() {
             let code = "";
+            // CRITICAL FIX: Re-register generators immediately before generation
+            ensureGenerators();
+
             try {
-                // CRITICAL: Init generator before use
                 if(Blockly.JavaScript.init) Blockly.JavaScript.init(workspace);
                 code = Blockly.JavaScript.workspaceToCode(workspace);
             } catch(e) { return alert("Code Generation Error: " + e.message); }
@@ -449,6 +466,9 @@
             document.getElementById('tournament-results-container').style.display = 'none';
 
             setTimeout(() => {
+                // Re-register generators for tournament execution too
+                ensureGenerators();
+                
                 const players = [];
                 // Gather players
                 document.querySelectorAll('#preset-strategies-list input:checked').forEach(i => players.push({name: i.value, fn: gameEngine.strats[i.value], score:0}));
@@ -470,11 +490,8 @@
                 // Round Robin
                 for(let i=0; i<players.length; i++) {
                     for(let j=i; j<players.length; j++) {
-                        const r = gameEngine.run((ctx)=>players[i].fn(ctx), players[j].name || 'random', 100); 
-                        // Note: This simplified loop re-uses the engine's single-run logic. 
-                        // Ideally for tournament we run custom vs custom logic directly:
+                        // Tournament logic: run custom vs custom
                         let p1s=0, p2s=0; 
-                        // Simple Custom vs Custom Loop
                         let h1=[], h2=[];
                         for(let round=1; round<=100; round++) {
                             let c1={roundNumber:round, opponentLastMove: h2.length?h2[h2.length-1]:null};
