@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRISONER COMIC // v3.8 (Final Fix)</title>
+    <title>PRISONER COMIC // v4.1 (Random Only)</title>
     
     <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
     <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
@@ -16,12 +16,10 @@
         :root {
             --bg-color: #ffffff;
             --border-color: #000000;
-            --primary-accent: #ff0000;   
-            --secondary-accent: #0099ff; 
-            --success-color: #00cc00;
-            --text-color: #000000;
+            --primary-accent: #6c63ff;
+            --secondary-accent: #ff6b6b; 
+            --success-color: #28a745;
             --border-width: 3px;
-            --shadow-offset: 5px;
         }
 
         * { box-sizing: border-box; }
@@ -30,139 +28,130 @@
             font-family: 'Comic Neue', cursive;
             margin: 0; padding: 0;
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: #000;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        .container { max-width: 1600px; margin: 0 auto; padding: 2rem; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
 
-        /* --- Header --- */
+        /* Header */
         header {
-            text-align: center; margin-bottom: 3rem;
+            text-align: center; margin-bottom: 2rem;
             display: flex; flex-direction: column; align-items: center;
         }
-        .hero-image {
-            max-width: 600px; width: 100%;
-            border: var(--border-width) solid var(--border-color);
-            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
-            margin-bottom: 1.5rem; background: #fff;
-            min-height: 150px; display: flex; align-items: center; justify-content: center;
-            font-family: 'Patrick Hand'; font-size: 2rem; color: #ccc;
+        .hero-box {
+            background: #fff; border: var(--border-width) solid #000;
+            box-shadow: 5px 5px 0px #000; padding: 1rem 2rem; margin-bottom: 1rem;
         }
         h1 {
-            font-family: 'Patrick Hand', cursive; font-size: 4rem; margin: 0;
+            font-family: 'Patrick Hand', cursive; font-size: 3.5rem; margin: 0;
             text-transform: uppercase; letter-spacing: 2px;
-            text-shadow: 2px 2px 0px #ccc; color: var(--text-color);
         }
         .subtitle {
-            font-family: 'Patrick Hand', cursive; color: #666; font-size: 1.5rem;
-            margin-top: 0.5rem; text-transform: uppercase; font-weight: bold;
+            font-family: 'Patrick Hand', cursive; color: #666; font-size: 1.2rem; font-weight: bold;
         }
 
-        /* --- Panels --- */
+        /* Layout */
         .main-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2rem; }
         
         .panel {
             background: #fff;
-            border: var(--border-width) solid var(--border-color);
-            padding: 2rem;
-            box-shadow: 5px 5px 0px var(--border-color);
+            border: var(--border-width) solid #000;
+            padding: 1.5rem;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
             border-radius: 0;
         }
 
         h2 {
-            font-family: 'Patrick Hand', cursive; font-size: 2.2rem;
-            margin-top: 0; margin-bottom: 1.5rem;
-            border-bottom: var(--border-width) solid var(--border-color);
+            font-family: 'Patrick Hand', cursive; font-size: 2rem;
+            margin-top: 0; margin-bottom: 1rem;
+            border-bottom: var(--border-width) solid #000;
             padding-bottom: 0.5rem; display: flex; align-items: center;
         }
 
-        /* --- Controls --- */
-        .controls-bar { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        /* Controls */
+        .controls-bar { display: flex; gap: 0.8rem; margin-top: 1rem; flex-wrap: wrap; }
         
         button, .btn-label {
-            background: #fff; border: var(--border-width) solid var(--border-color);
-            padding: 0.8rem 1.5rem; font-family: 'Patrick Hand', cursive;
-            font-size: 1.2rem; font-weight: bold; text-transform: uppercase;
-            cursor: pointer; transition: all 0.1s ease;
-            box-shadow: 3px 3px 0px var(--border-color);
+            background: #fff; border: var(--border-width) solid #000;
+            padding: 0.6rem 1.2rem; font-family: 'Patrick Hand', cursive;
+            font-size: 1.1rem; font-weight: bold; text-transform: uppercase;
+            cursor: pointer; transition: transform 0.1s;
+            box-shadow: 3px 3px 0px #000;
         }
-        button:hover, .btn-label:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0px var(--border-color); background: #f0f0f0; }
-        button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px var(--border-color); }
+        button:hover, .btn-label:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0px #000; background: #f4f4f4; }
+        button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
         
-        button.btn-success { background: #eaffea; }
-        button.btn-accent { background: #ffeaea; }
+        .btn-primary { background: #e0e0ff; }
+        .btn-success { background: #eaffea; }
+        .btn-warn { background: #fff4e0; }
 
         select, input[type="number"] {
-            background: #fff; border: var(--border-width) solid var(--border-color);
-            padding: 0.8rem; font-family: 'Comic Neue', cursive; font-size: 1.1rem; font-weight: bold;
+            background: #fff; border: var(--border-width) solid #000;
+            padding: 0.5rem; font-family: 'Comic Neue', cursive; font-size: 1rem; font-weight: bold;
             width: 100%; border-radius: 0; box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
         }
 
-        /* --- Workspace --- */
+        /* Workspace */
         #blockly-workspace {
-            height: 600px; width: 100%;
-            border: var(--border-width) solid var(--border-color);
+            height: 550px; width: 100%;
+            border: var(--border-width) solid #000;
             background: #f9f9f9;
         }
 
-        /* --- Results --- */
-        .score-board { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+        /* Scoreboard */
+        .score-board { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         .score-card {
-            background: #fff; border: var(--border-width) solid var(--border-color);
-            padding: 1.5rem; text-align: center; box-shadow: 3px 3px 0px var(--border-color);
+            background: #fff; border: var(--border-width) solid #000;
+            padding: 1rem; text-align: center; box-shadow: 3px 3px 0px #000;
         }
-        .score-value { font-size: 3.5rem; font-family: 'Patrick Hand'; font-weight: 700; }
-        .score-p1 { color: var(--secondary-accent); }
-        .score-p2 { color: var(--primary-accent); }
+        .score-value { font-size: 3rem; font-family: 'Patrick Hand'; font-weight: 700; }
+        .score-p1 { color: var(--primary-accent); }
+        .score-p2 { color: #e53e3e; }
 
+        /* Logs */
         .log-container {
-            height: 300px; overflow-y: auto;
-            border: var(--border-width) solid var(--border-color); padding: 1rem;
-            font-family: 'Comic Neue', cursive; font-weight: bold;
+            height: 250px; overflow-y: auto;
+            border: var(--border-width) solid #000; padding: 0.8rem;
+            font-family: 'Courier New', monospace; font-weight: bold; font-size: 0.9rem;
         }
-        .log-entry { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px dashed #ccc; }
-        .move-cooperate { color: var(--success-color); }
-        .move-defect { color: var(--primary-accent); }
+        .log-entry { border-bottom: 1px dashed #ccc; padding: 2px 0; }
 
-        /* --- Tournament --- */
+        /* Tournament */
         .tournament-section { margin-top: 2rem; grid-column: 1 / -1; }
-        .strategy-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .strategy-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.8rem; margin-top: 0.5rem; }
         .strategy-item {
-            background: #fff; border: 2px solid #eee; padding: 1rem; display: flex; align-items: center; gap: 0.8rem;
+            background: #fff; border: 2px solid #eee; padding: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
+            font-weight: bold;
         }
-        .strategy-item:hover { border-color: var(--border-color); box-shadow: 3px 3px 0px var(--border-color); }
+        .strategy-item:hover { border-color: #000; }
         
         .results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        .results-table th { text-align: left; padding: 1rem; border-bottom: var(--border-width) solid var(--border-color); font-family: 'Patrick Hand'; }
-        .results-table td { padding: 1rem; border-bottom: 1px solid #eee; font-weight: bold; }
-        .rank-1 { color: #eebb00; font-size: 1.2em; }
+        .results-table th { text-align: left; padding: 0.8rem; border-bottom: var(--border-width) solid #000; font-family: 'Patrick Hand'; }
+        .results-table td { padding: 0.8rem; border-bottom: 1px solid #eee; font-weight: bold; }
     </style>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <div class="hero-image">[COMIC IMAGE PLACEHOLDER]</div>
-            <h1>PRISONER'S DILEMMA</h1>
-            <div class="subtitle">A Game of Trust (and Betrayal)</div>
+            <div class="hero-box">
+                <h1>🎯 Prisoner's Dilemma</h1>
+                <div class="subtitle">Algorithm Designer (Comic Edition)</div>
+            </div>
         </header>
 
         <div class="main-grid">
             <div class="panel">
-                <h2>
-                    <span>STRATEGY DECK</span>
-                    <div style="flex-grow:1"></div>
-                    <button id="new-algorithm" class="btn-label" style="font-size:1rem;">RESET</button>
-                </h2>
+                <h2>Strategy Deck</h2>
                 
                 <xml id="toolbox" style="display: none">
                     <category name="Decisions" colour="160">
                         <block type="prisoner_decision"></block>
                         <block type="return_decision"></block>
                     </category>
-                    <category name="Game State" colour="230">
+                    <category name="Game State" colour="210">
                         <block type="opponent_last_move"></block>
                         <block type="round_number"></block>
                     </category>
@@ -172,65 +161,66 @@
                         <block type="logic_operation"></block>
                         <block type="logic_boolean"></block>
                     </category>
-                    <category name="Math" colour="280">
+                    <category name="Math" colour="230">
                         <block type="math_number"></block>
                         <block type="math_arithmetic"></block>
                         <block type="math_random_float"></block>
                     </category>
-                    <category name="Variables" custom="VARIABLE" colour="330"></category>
+                    <category name="Variables" custom="VARIABLE" colour="290"></category>
                 </xml>
 
                 <div id="blockly-workspace"></div>
 
                 <div class="controls-bar">
-                    <button id="test-algorithm" class="btn-success">TEST IT!</button>
-                    <button id="save-strategy">SAVE XML</button>
+                    <button id="new-algorithm" class="btn-primary">New</button>
+                    <button id="test-algorithm" class="btn-success">Test It!</button>
+                    <button id="clear-workspace" class="btn-warn">Clear</button>
+                    <button id="save-strategy" class="btn-primary">Save</button>
                     <label class="btn-label" style="cursor:pointer">
-                        LOAD XML <input type="file" id="upload-strategy" accept=".xml" style="display:none">
+                        Load <input type="file" id="upload-strategy" accept=".xml" style="display:none">
                     </label>
-                    <button id="clear-workspace" class="btn-accent">CLEAR</button>
                 </div>
             </div>
 
             <div class="panel">
-                <h2>SIMULATION</h2>
+                <h2>Simulation</h2>
                 <div class="score-board">
-                    <div class="score-card score-p1"><h3>YOU</h3><div id="your-score" class="score-value">0</div></div>
-                    <div class="score-card score-p2"><h3>THEM</h3><div id="opponent-score" class="score-value">0</div></div>
+                    <div class="score-card"><h3 class="subtitle" style="color:var(--primary-accent)">YOU</h3><div id="your-score" class="score-value">0</div></div>
+                    <div class="score-card"><h3 class="subtitle" style="color:#e53e3e">THEM</h3><div id="opponent-score" class="score-value">0</div></div>
                 </div>
                 
-                <div style="margin-bottom: 1rem; display:flex; gap:1rem;">
-                    <div style="flex:1">
-                        <label style="font-family:'Patrick Hand'; display:block; margin-bottom:0.5rem">OPPONENT</label>
+                <div style="margin-bottom: 1rem; display:grid; grid-template-columns: 1fr 100px; gap:1rem;">
+                    <div>
+                        <label style="font-family:'Patrick Hand'; display:block; margin-bottom:0.3rem">OPPONENT</label>
                         <select id="opponent-strategy"></select>
                     </div>
-                    <div style="width:100px">
-                        <label style="font-family:'Patrick Hand'; display:block; margin-bottom:0.5rem">ROUNDS</label>
+                    <div>
+                        <label style="font-family:'Patrick Hand'; display:block; margin-bottom:0.3rem">ROUNDS</label>
                         <input type="number" id="rounds" value="100" min="1" max="1000">
                     </div>
                 </div>
-                <div id="game-log-content" class="log-container"></div>
+                <div id="game-log-content" class="log-container"><p>Ready to test...</p></div>
             </div>
 
             <div class="panel tournament-section">
-                <h2>TOURNAMENT MODE</h2>
+                <h2>Tournament Mode</h2>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem">
                     <div>
-                        <h3 style="font-family:'Patrick Hand'; border-bottom:2px solid #000;">PRESETS</h3>
+                        <h3 class="subtitle" style="border-bottom:2px solid #000">PRESETS</h3>
                         <div id="preset-strategies-list" class="strategy-list"></div>
                     </div>
                     <div>
-                        <h3 style="font-family:'Patrick Hand'; border-bottom:2px solid #000;">CUSTOM UPLOADS</h3>
-                        <div class="controls-bar" style="margin-top:0; margin-bottom:1rem">
-                            <label class="btn-label" style="width:100%; text-align:center; cursor:pointer">
-                                + UPLOAD STRATEGIES
+                        <h3 class="subtitle" style="border-bottom:2px solid #000">CUSTOM</h3>
+                        <div class="controls-bar" style="margin-top:0; margin-bottom:0.5rem">
+                            <label class="btn-label" style="width:100%; text-align:center; cursor:pointer; background:#eee;">
+                                + Upload XML Files
                                 <input type="file" id="upload-tournament-strategies" accept=".xml" multiple style="display:none">
                             </label>
                         </div>
                         <div id="uploaded-files-list" class="strategy-list"></div>
                     </div>
                 </div>
-                <button id="run-tournament" class="btn-accent" style="width:100%; margin-top:1rem; font-size:1.5rem; padding:1.2rem">RUN TOURNAMENT</button>
+                <button id="run-tournament" class="btn-success" style="width:100%; margin-top:1.5rem; font-size:1.5rem;">RUN TOURNAMENT</button>
                 
                 <div id="tournament-results-container" style="display:none; margin-top:2rem">
                     <h3 style="text-align:center; margin-bottom:1rem; font-family:'Patrick Hand'; font-size:2rem">LEADERBOARD</h3>
@@ -244,16 +234,13 @@
     </div>
 
     <script>
-        // --- 1. Define Blocks & Generators ---
-        // We define these immediately. The check for 'Blockly' ensures library is loaded.
-        
-        function defineBlocksAndGenerators() {
+        // --- 1. BLOCK & GENERATOR REGISTRATION ---
+        function registerMechanisms() {
             if (typeof Blockly === 'undefined') return;
 
-            // --- BLOCKS ---
             Blockly.Blocks['prisoner_decision'] = {
                 init: function() {
-                    this.appendDummyInput().appendField("Decision").appendField(new Blockly.FieldDropdown([["COOPERATE","COOPERATE"], ["DEFECT","DEFECT"]]), "DECISION");
+                    this.appendDummyInput().appendField(new Blockly.FieldDropdown([["Cooperate", "COOPERATE"],["Defect", "DEFECT"]]), "DECISION");
                     this.setOutput(true, "Decision");
                     this.setColour(160);
                 }
@@ -262,72 +249,67 @@
                 init: function() {
                     this.appendDummyInput().appendField("Opponent's Last Move");
                     this.setOutput(true, "Decision");
-                    this.setColour(230);
+                    this.setColour(210);
                 }
             };
             Blockly.Blocks['round_number'] = {
                 init: function() {
                     this.appendDummyInput().appendField("Round Number");
                     this.setOutput(true, "Number");
-                    this.setColour(280);
+                    this.setColour(230);
                 }
             };
             Blockly.Blocks['return_decision'] = {
                 init: function() {
-                    this.appendValueInput("DECISION").setCheck("Decision").appendField("Play Card:");
+                    this.appendValueInput("DECISION").setCheck("Decision").appendField("return");
                     this.setPreviousStatement(true, null);
                     this.setColour(160);
                 }
             };
 
-            // --- GENERATORS ---
-            // Ensure the generator object exists
-            if (typeof Blockly.JavaScript === 'undefined') {
-                console.error("Blockly.JavaScript is missing!");
-                return;
+            if (typeof Blockly.JavaScript !== 'undefined') {
+                Blockly.JavaScript['prisoner_decision'] = function(block) {
+                    return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC];
+                };
+                Blockly.JavaScript['opponent_last_move'] = function(block) {
+                    return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC];
+                };
+                Blockly.JavaScript['round_number'] = function(block) {
+                    return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC];
+                };
+                Blockly.JavaScript['return_decision'] = function(block) {
+                    var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
+                    return "return " + code + ";\n";
+                };
             }
-
-            Blockly.JavaScript['prisoner_decision'] = function(block) { 
-                return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC]; 
-            };
-            Blockly.JavaScript['opponent_last_move'] = function(block) { 
-                return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC]; 
-            };
-            Blockly.JavaScript['round_number'] = function(block) { 
-                return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC]; 
-            };
-            Blockly.JavaScript['return_decision'] = function(block) { 
-                var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
-                return "return " + code + ";\n";
-            };
         }
 
-        // --- 2. GAME ENGINE ---
+        // --- 2. LOGIC ENGINE ---
         class GameEngine {
             constructor() {
+                // UPDATED: ONLY RANDOM STRATEGY
                 this.strats = {
-                    'random': () => Math.random() > 0.5 ? 'COOPERATE' : 'DEFECT',
-                    'always_defect': () => 'DEFECT',
-                    'always_cooperate': () => 'COOPERATE',
-                    'tit_for_tat': (ctx) => ctx.opponentLastMove || 'COOPERATE'
+                    'random': () => Math.random() > 0.5 ? 'COOPERATE' : 'DEFECT'
                 };
             }
 
             run(algorithm, vs, rounds) {
-                const history = [];
+                const history = []; 
                 let p1s = 0, p2s = 0;
                 const persistentContext = { variables: {} };
 
                 for (let r = 1; r <= rounds; r++) {
-                    const p1Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length - 1].p2 : null, variables: persistentContext.variables };
-                    const p2Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length - 1].p1 : null, opponentHistory: history.map(h=>h.p1) };
-
+                    const p1s_moves = history.map(h => h.p1);
+                    const p1Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length-1].p2 : null, variables: persistentContext.variables };
+                    const p2Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length-1].p1 : null, opponentHistory: p1s_moves };
+                    
                     let p1m = 'COOPERATE', p2m = 'COOPERATE';
-                    try { p1m = algorithm(p1Ctx); } catch(e) { console.error(e); }
-                    try { p2m = this.strats[vs] ? this.strats[vs](p2Ctx) : this.strats['random'](p2Ctx); } catch(e) {}
+                    
+                    try { p1m = algorithm(p1Ctx); } catch (e) { console.error(e); }
+                    try { p2m = this.strats[vs] ? this.strats[vs](p2Ctx) : this.strats['random'](p2Ctx); } catch (e) {}
 
-                    if (p1m !== 'COOPERATE' && p1m !== 'DEFECT') p1m = 'COOPERATE';
-                    if (p2m !== 'COOPERATE' && p2m !== 'DEFECT') p2m = 'COOPERATE';
+                    if(p1m !== 'COOPERATE' && p1m !== 'DEFECT') p1m = 'COOPERATE';
+                    if(p2m !== 'COOPERATE' && p2m !== 'DEFECT') p2m = 'COOPERATE';
 
                     const sc = this.scores(p1m, p2m);
                     p1s += sc.p1; p2s += sc.p2;
@@ -337,37 +319,39 @@
             }
 
             scores(m1, m2) {
-                if (m1 === 'COOPERATE' && m2 === 'COOPERATE') return { p1: 3, p2: 3 };
+                if (m1 === 'COOPERATE' && m2 === 'COOPERATE') return { p1: 4, p2: 4 };
                 if (m1 === 'DEFECT' && m2 === 'COOPERATE') return { p1: 5, p2: 0 };
                 if (m1 === 'COOPERATE' && m2 === 'DEFECT') return { p1: 0, p2: 5 };
-                return { p1: 1, p2: 1 };
+                return { p1: 2, p2: 2 };
             }
         }
 
-        // --- 3. SETUP & UI ---
+        // --- 3. MAIN SETUP ---
         let workspace = null;
         const gameEngine = new GameEngine();
         let uploadedStrategies = [];
 
         window.addEventListener('load', () => {
-            if(typeof Blockly === 'undefined') return alert("Library load error");
-            
-            // Register Definitions
-            defineBlocksAndGenerators();
+            if(typeof Blockly === 'undefined') return alert("Libraries failed to load. Check connection.");
 
-            // Initialize UI
-            const sel = document.getElementById('opponent-strategy');
-            Object.keys(gameEngine.strats).forEach(k => {
-                const opt = document.createElement('option');
-                opt.value = k; opt.textContent = k.toUpperCase().replace(/_/g,' ');
-                sel.appendChild(opt);
+            registerMechanisms();
+
+            // Init UI
+            const opponentSelect = document.getElementById('opponent-strategy');
+            Object.keys(gameEngine.strats).forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name.replace(/_/g, ' ').toUpperCase();
+                opponentSelect.appendChild(option);
             });
-            sel.value = 'random';
 
-            const list = document.getElementById('preset-strategies-list');
-            list.innerHTML = Object.keys(gameEngine.strats).map(k => 
-                `<div class="strategy-item"><input type="checkbox" id="pre-${k}" value="${k}" checked> <label for="pre-${k}" style="cursor:pointer; flex-grow:1">${k.toUpperCase().replace(/_/g,' ')}</label></div>`
-            ).join('');
+            const presetsContainer = document.getElementById('preset-strategies-list');
+            presetsContainer.innerHTML = Object.keys(gameEngine.strats).map(name => `
+                <div class="strategy-item">
+                    <input type="checkbox" id="preset-${name}" value="${name}" checked>
+                    <label for="preset-${name}" style="margin-left: 0.5rem; cursor:pointer; flex-grow:1;">${name.replace(/_/g, ' ').toUpperCase()}</label>
+                </div>
+            `).join('');
 
             // Inject Blockly
             workspace = Blockly.inject('blockly-workspace', {
@@ -376,13 +360,13 @@
                 theme: Blockly.Themes.Classic
             });
 
-            // Events
+            // Listeners
             document.getElementById('new-algorithm').addEventListener('click', loadDefaultAlgorithm);
             document.getElementById('test-algorithm').addEventListener('click', testAlgorithm);
             document.getElementById('clear-workspace').addEventListener('click', () => confirm('Clear?') && workspace.clear());
             document.getElementById('save-strategy').addEventListener('click', saveStrategy);
             document.getElementById('upload-strategy').addEventListener('change', loadStrategy);
-            document.getElementById('upload-tournament-strategies').addEventListener('change', handleTournamentUpload);
+            document.getElementById('upload-tournament-strategies').addEventListener('change', handleTournamentFileUpload);
             document.getElementById('run-tournament').addEventListener('click', runTournament);
 
             setTimeout(loadDefaultAlgorithm, 100);
@@ -395,12 +379,10 @@
         }
 
         function testAlgorithm() {
-            // Define Generators AGAIN just to be absolutely safe against race conditions
-            defineBlocksAndGenerators();
+            registerMechanisms();
 
             let code = "";
             try {
-                // Init generator
                 if(Blockly.JavaScript.init) Blockly.JavaScript.init(workspace);
                 code = Blockly.JavaScript.workspaceToCode(workspace);
             } catch(e) { return alert("Code Generation Error: " + e.message); }
@@ -410,30 +392,20 @@
             try { algorithm = new Function('context', funcBody); } catch(e) { return alert("Syntax Error: " + e.message); }
 
             const opponent = document.getElementById('opponent-strategy').value;
-            const rounds = parseInt(document.getElementById('rounds').value) || 10;
+            const rounds = parseInt(document.getElementById('rounds').value) || 100;
+            
             const res = gameEngine.run(algorithm, opponent, rounds);
 
-            animateValue(document.getElementById('your-score'), 0, res.p1s, 1000);
-            animateValue(document.getElementById('opponent-score'), 0, res.p2s, 1000);
-
+            document.getElementById('your-score').textContent = res.p1s;
+            document.getElementById('opponent-score').textContent = res.p2s;
+            
             const log = document.getElementById('game-log-content');
             log.innerHTML = res.history.map(h => {
-                const c1 = h.p1==='COOPERATE'?'move-cooperate':'move-defect';
-                const c2 = h.p2==='COOPERATE'?'move-cooperate':'move-defect';
-                return `<div class="log-entry"><span>R${h.r}</span><span class="${c1}">YOU: ${h.p1[0]}</span><span class="${c2}">THEM: ${h.p2[0]}</span><span>${h.p1Score}-${h.p2Score}</span></div>`;
+                const p1c = h.p1==='COOPERATE'?'color:#28a745':'color:#e53e3e';
+                const p2c = h.p2==='COOPERATE'?'color:#28a745':'color:#e53e3e';
+                return `<div class="log-entry">R${h.r}: You <span style="${p1c}">${h.p1[0]}</span>, Them <span style="${p2c}">${h.p2[0]}</span> (${h.p1Score}-${h.p2Score})</div>`;
             }).join('');
             log.scrollTop = log.scrollHeight;
-        }
-
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start);
-                if (progress < 1) window.requestAnimationFrame(step);
-            };
-            window.requestAnimationFrame(step);
         }
 
         // --- File I/O ---
@@ -452,19 +424,23 @@
         }
 
         // --- Tournament ---
-        function handleTournamentUpload(e) {
+        function handleTournamentFileUpload(e) {
             Array.from(e.target.files).forEach(file => {
+                const name = file.name.replace(/\.xml$/,'');
+                uploadedStrategies.push({name: name, file: file}); 
                 const r = new FileReader();
                 r.onload = (ev) => {
-                    const name = file.name.replace(/\.xml$/,'');
-                    uploadedStrategies.push({name, xml: ev.target.result});
+                    const entry = uploadedStrategies.find(x => x.name === name);
+                    if(entry) entry.xml = ev.target.result;
+                    
                     const div = document.createElement('div');
                     div.className = 'strategy-item';
-                    div.innerHTML = `<input type="checkbox" id="custom-${name}" value="${name}" checked> <label for="custom-${name}" style="cursor:pointer; flex-grow:1">${name}</label>`;
+                    div.innerHTML = `<input type="checkbox" id="custom-${name}" value="${name}" checked> <label for="custom-${name}" style="margin-left:0.5rem; cursor:pointer;">${name}</label>`;
                     document.getElementById('uploaded-files-list').appendChild(div);
                 };
                 r.readAsText(file);
             });
+            e.target.value = '';
         }
 
         function runTournament() {
@@ -473,58 +449,55 @@
             document.getElementById('tournament-results-container').style.display = 'none';
 
             setTimeout(() => {
-                // Re-register generators for tournament too
-                defineBlocksAndGenerators();
+                registerMechanisms();
 
                 const players = [];
-                // Gather players
-                document.querySelectorAll('#preset-strategies-list input:checked').forEach(i => players.push({name: i.value, fn: gameEngine.strats[i.value], score:0}));
+                document.querySelectorAll('#preset-strategies-list input:checked').forEach(i => {
+                    players.push({name: i.value, fn: gameEngine.strats[i.value], score:0});
+                });
                 document.querySelectorAll('#uploaded-files-list input:checked').forEach(i => {
                     const data = uploadedStrategies.find(u => u.name === i.value);
-                    if(data) {
+                    if(data && data.xml) {
                         const ws = new Blockly.Workspace();
                         Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(data.xml), ws);
                         if(Blockly.JavaScript.init) Blockly.JavaScript.init(ws);
                         const code = Blockly.JavaScript.workspaceToCode(ws);
                         ws.dispose();
                         const fn = new Function('context', `const {roundNumber, opponentLastMove, variables} = context; ${code} return 'COOPERATE';`);
-                        players.push({name: data.name, fn, score:0});
+                        players.push({name: data.name, fn: fn, score:0});
                     }
                 });
 
-                if(players.length < 2) { btn.disabled = false; btn.textContent = 'RUN TOURNAMENT'; return alert("Pick 2+ strategies"); }
+                if(players.length < 2) { btn.disabled=false; btn.textContent='RUN TOURNAMENT'; return alert("Select 2+ strategies"); }
 
-                // Round Robin
                 for(let i=0; i<players.length; i++) {
                     for(let j=i; j<players.length; j++) {
-                        // Custom loop to avoid context sharing issues
-                        let p1s=0, p2s=0; 
+                        let p1s=0, p2s=0;
                         let h1=[], h2=[];
-                        for(let round=1; round<=100; round++) {
-                            let c1={roundNumber:round, opponentLastMove: h2.length?h2[h2.length-1]:null};
-                            let c2={roundNumber:round, opponentLastMove: h1.length?h1[h1.length-1]:null};
-                            let m1='COOPERATE', m2='COOPERATE';
-                            try{m1=players[i].fn(c1)}catch(e){}
-                            try{m2=players[j].fn(c2)}catch(e){}
-                            if(m1!=='DEFECT')m1='COOPERATE'; if(m2!=='DEFECT')m2='COOPERATE';
-                            let s=gameEngine.scores(m1,m2);
-                            p1s+=s.p1; p2s+=s.p2;
-                            h1.push(m1); h2.push(m2);
+                        for(let r=1; r<=100; r++) {
+                             let c1={roundNumber:r, opponentLastMove: h2.length?h2[h2.length-1]:null};
+                             let c2={roundNumber:r, opponentLastMove: h1.length?h1[h1.length-1]:null};
+                             let m1='COOPERATE', m2='COOPERATE';
+                             try{m1=players[i].fn(c1)}catch(e){}
+                             try{m2=players[j].fn(c2)}catch(e){}
+                             if(m1!=='DEFECT') m1='COOPERATE'; if(m2!=='DEFECT') m2='COOPERATE';
+                             let s = gameEngine.scores(m1,m2);
+                             p1s+=s.p1; p2s+=s.p2;
+                             h1.push(m1); h2.push(m2);
                         }
                         players[i].score += p1s;
                         if(i!==j) players[j].score += p2s;
                     }
                 }
 
-                // Results
-                const body = document.getElementById('tournament-results-body');
-                body.innerHTML = '';
+                const tbody = document.getElementById('tournament-results-body');
+                tbody.innerHTML = '';
                 players.sort((a,b) => b.score - a.score).forEach((p, idx) => {
                     const tr = document.createElement('tr');
-                    const cls = idx===0?'rank-1':'';
-                    tr.innerHTML = `<td class="${cls}">#${idx+1}</td><td style="font-weight:bold">${p.name.toUpperCase().replace(/_/g,' ')}</td><td style="text-align:right">${p.score}</td>`;
-                    body.appendChild(tr);
+                    tr.innerHTML = `<td style="padding:0.8rem">#${idx+1}</td><td style="padding:0.8rem; font-weight:bold;">${p.name.toUpperCase().replace(/_/g,' ')}</td><td style="text-align:right; padding:0.8rem;">${p.score}</td>`;
+                    tbody.appendChild(tr);
                 });
+
                 document.getElementById('tournament-results-container').style.display = 'block';
                 btn.disabled = false; btn.textContent = 'RUN TOURNAMENT';
             }, 100);
