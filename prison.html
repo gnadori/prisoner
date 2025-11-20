@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iterative Prisoner's Dilemma Strategy Designer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Core Blockly library -->
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <!-- Blockly JavaScript generator -->
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style for the Blockly container to give it a defined size */
+        #blocklyDiv {
+            height: 600px;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+        /* Custom styling for Blockly's toolbox and workspace */
+        .blocklyToolboxDiv {
+            background-color: #f9fafb;
+            border-right: 1px solid #e5e7eb;
+        }
+        .blocklyFlyout {
+            border-radius: 0.5rem;
+        }
+        .blocklyMainBackground {
+            stroke: #f3f4f6 !important;
+        }
+        .blocklyScrollbarHandle {
+            fill: #9ca3af;
+        }
+        /* Custom modal for alerts */
+        #alertModal {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Prisoner's Dilemma Strategy Designer</h1>
+            <p class="text-lg text-gray-600 mt-2">Create your strategy using blocks, then test it in a simulation!</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column: Strategy Designer -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold">Your Strategy</h2>
+                    <div class="flex items-center space-x-2">
+                        <label for="strategy-select" class="text-sm font-medium">Load Example:</label>
+                        <select id="strategy-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
+                            <option value="custom">Custom Strategy</option>
+                            <option value="tit_for_tat">Tit for Tat</option>
+                            <option value="always_cooperate">Always Cooperate</option>
+                            <option value="always_defect">Always Defect</option>
+                            <option value="grudger">Grudger</option>
+                            <option value="random">Random</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Blockly workspace will be injected here -->
+                <div id="blocklyDiv"></div>
+            </div>
+
+            <!-- Right Column: Simulation & Results -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold mb-4">Simulation</h2>
+                
+                <!-- Simulation Controls -->
+                <div class="bg-gray-100 p-4 rounded-lg mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                        <div>
+                            <label for="opponent-select" class="block text-sm font-medium text-gray-700 mb-1">Opponent Strategy</label>
+                            <select id="opponent-select" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                <option value="tit_for_tat">Tit for Tat</option>
+                                <option value="always_cooperate">Always Cooperate</option>
+                                <option value="always_defect">Always Defect</option>
+                                <option value="grudger">Grudger</option>
+                                <option value="random">Random</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="rounds-input" class="block text-sm font-medium text-gray-700 mb-1">Number of Rounds</label>
+                            <input type="number" id="rounds-input" value="10" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        </div>
+                    </div>
+                    <button id="run-simulation-btn" class="mt-4 w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                        Run Simulation
+                    </button>
+                </div>
+
+                <!-- Results Display -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Results</h3>
+                    <div id="results-summary" class="grid grid-cols-2 gap-4 text-center mb-4 p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-lg font-medium">Your Score</p>
+                            <p id="your-score" class="text-3xl font-bold text-blue-600">0</p>
+                        </div>
+                        <div>
+                            <p class="text-lg font-medium">Opponent's Score</p>
+                            <p id="opponent-score" class="text-3xl font-bold text-red-600">0</p>
+                        </div>
+                    </div>
+                    <h4 class="text-lg font-semibold mb-2">Move History</h4>
+                    <div id="results-log" class="h-64 overflow-y-auto bg-gray-900 text-white font-mono text-sm p-4 rounded-lg">
+                        Welcome! Configure your simulation and press "Run".
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Modal -->
+    <div id="alertModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full text-center">
+            <h3 class="text-xl font-semibold mb-4" id="alertTitle">Alert</h3>
+            <p id="alertMessage" class="text-gray-600 mb-6"></p>
+            <button id="alertCloseBtn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Custom Alert Modal ---
+        const alertModal = document.getElementById('alertModal');
+        const alertTitle = document.getElementById('alertTitle');
+        const alertMessage = document.getElementById('alertMessage');
+        const alertCloseBtn = document.getElementById('alertCloseBtn');
+
+        function showAlert(title, message) {
+            alertTitle.textContent = title;
+            alertMessage.textContent = message;
+            alertModal.classList.remove('hidden');
+            setTimeout(() => alertModal.classList.remove('opacity-0'), 10);
+        }
+
+        alertCloseBtn.addEventListener('click', () => {
+            alertModal.classList.add('opacity-0');
+            setTimeout(() => alertModal.classList.add('hidden'), 300);
+        });
+
+
+        // --- Constants and Enums ---
+        const MOVES = {
+            COOPERATE: 'COOPERATE',
+            DEFECT: 'DEFECT'
+        };
+
+        const PAYOFFS = {
+            [MOVES.COOPERATE]: {
+                [MOVES.COOPERATE]: [3, 3], // Both cooperate (Reward)
+                [MOVES.DEFECT]: [0, 5]    // You cooperate, they defect (Sucker, Temptation)
+            },
+            [MOVES.DEFECT]: {
+                [MOVES.COOPERATE]: [5, 0], // You defect, they cooperate (Temptation, Sucker)
+                [MOVES.DEFECT]: [1, 1]      // Both defect (Punishment)
+            }
+        };
+
+        // --- Blockly Setup ---
+
+        // 1. Define Custom Blocks
+        Blockly.defineBlocksWithJsonArray([
+            {
+                "type": "pd_cooperate", "message0": "Cooperate", "output": "Action",
+                "colour": 160, "tooltip": "Choose to cooperate with your opponent.",
+            },
+            {
+                "type": "pd_defect", "message0": "Defect", "output": "Action",
+                "colour": 0, "tooltip": "Choose to defect against your opponent.",
+            },
+            {
+                "type": "pd_opponent_last_move", "message0": "Opponent's Last Move", "output": "Move",
+                "colour": 230, "tooltip": "Returns the opponent's move from the previous round.",
+            },
+            {
+                "type": "pd_my_last_move", "message0": "My Last Move", "output": "Move",
+                "colour": 210, "tooltip": "Returns your move from the previous round.",
+            },
+            {
+                "type": "pd_current_round", "message0": "Current Round Number", "output": "Number",
+                "colour": 260, "tooltip": "Returns the current round number (starting from 1).",
+            },
+            {
+                "type": "pd_opponent_has_defected", "message0": "Opponent has ever defected", "output": "Boolean",
+                "colour": 230, "tooltip": "Returns true if the opponent has defected in any previous round.",
+            },
+            { "type": "pd_move_cooperate", "message0": "Cooperate Move", "output": "Move", "colour": 160, },
+            { "type": "pd_move_defect", "message0": "Defect Move", "output": "Move", "colour": 0, }
+        ]);
+
+        // 2. Define JavaScript Generators for Custom Blocks
+        // These generators create code that expects 'myHistory', 'opponentHistory', and 'currentRound'
+        // to be available as variables or arguments in the execution scope.
+        Blockly.JavaScript.forBlock['pd_cooperate'] = block => [`'${MOVES.COOPERATE}'`, Blockly.JavaScript.ORDER_ATOMIC];
+        Blockly.JavaScript.forBlock['pd_defect'] = block => [`'${MOVES.DEFECT}'`, Blockly.JavaScript.ORDER_ATOMIC];
+        Blockly.JavaScript.forBlock['pd_opponent_last_move'] = block => ['(opponentHistory.length > 0 ? opponentHistory[opponentHistory.length - 1] : "COOPERATE")', Blockly.JavaScript.ORDER_FUNCTION_CALL];
+        Blockly.JavaScript.forBlock['pd_my_last_move'] = block => ['(myHistory.length > 0 ? myHistory[myHistory.length - 1] : "COOPERATE")', Blockly.JavaScript.ORDER_FUNCTION_CALL];
+        Blockly.JavaScript.forBlock['pd_current_round'] = block => ['(currentRound + 1)', Blockly.JavaScript.ORDER_ATOMIC];
+        Blockly.JavaScript.forBlock['pd_opponent_has_defected'] = block => [`opponentHistory.includes('${MOVES.DEFECT}')`, Blockly.JavaScript.ORDER_MEMBER];
+        Blockly.JavaScript.forBlock['pd_move_cooperate'] = block => [`'${MOVES.COOPERATE}'`, Blockly.JavaScript.ORDER_ATOMIC];
+        Blockly.JavaScript.forBlock['pd_move_defect'] = block => [`'${MOVES.DEFECT}'`, Blockly.JavaScript.ORDER_ATOMIC];
+
+        // 3. Define the Toolbox (the block menu)
+        const toolbox = {
+            "kind": "flyoutToolbox",
+            "contents": [
+                { "kind": "category", "name": "Your Move", "contents": [
+                    { "kind": "block", "type": "pd_cooperate" }, { "kind": "block", "type": "pd_defect" }
+                ]},
+                { "kind": "category", "name": "Logic", "contents": [
+                    { "kind": "block", "type": "controls_if" }, { "kind": "block", "type": "logic_compare" },
+                    { "kind": "block", "type": "logic_operation" }, { "kind": "block", "type": "logic_negate" },
+                    { "kind": "block", "type": "logic_boolean" }
+                ]},
+                { "kind": "category", "name": "Game State", "contents": [
+                    { "kind": "block", "type": "pd_opponent_last_move" }, { "kind": "block", "type": "pd_my_last_move" },
+                    { "kind": "block", "type": "pd_current_round" }, { "kind": "block", "type": "pd_opponent_has_defected" }
+                ]},
+                { "kind": "category", "name": "Moves", "contents": [
+                    { "kind": "block", "type": "pd_move_cooperate" }, { "kind": "block", "type": "pd_move_defect" }
+                ]},
+                 { "kind": "category", "name": "Math", "contents": [
+                    { "kind": "block", "type": "math_number" }, { "kind": "block", "type": "math_arithmetic" }
+                ]}
+            ]
+        };
+
+        // 4. Inject Blockly Workspace
+        const blocklyDiv = document.getElementById('blocklyDiv');
+        const workspace = Blockly.inject(blocklyDiv, {
+            toolbox: toolbox, scrollbars: true, trashcan: true, theme: Blockly.Themes.Zelos
+        });
+
+        // 5. Define the main "Strategy" block
+        const mainBlockXml = `
+            <xml xmlns="https://developers.google.com/blockly/xml">
+                <block type="procedures_defreturn" id="main_strategy_block" x="100" y="50" deletable="false" movable="false">
+                    <field name="NAME">my_strategy</field>
+                    <comment pinned="true" h="80" w="160">Define your strategy here. It must return a move.</comment>
+                    <statement name="STACK"></statement>
+                    <value name="RETURN"><shadow type="pd_cooperate"></shadow></value>
+                </block>
+            </xml>`;
+        Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(mainBlockXml), workspace);
+
+
+        // --- Pre-built Strategy Definitions (XML for Blockly) ---
+        const PREBUILT_STRATEGIES_XML = {
+            custom: mainBlockXml,
+            tit_for_tat: `
+                <xml xmlns="https://developers.google.com/blockly/xml">
+                    <block type="procedures_defreturn" id="main_strategy_block" x="100" y="50" deletable="false" movable="false">
+                        <field name="NAME">my_strategy</field>
+                        <comment pinned="true" h="100" w="200">Tit for Tat: Cooperate on round 1, then copy opponent's last move.</comment>
+                        <statement name="STACK">
+                            <block type="controls_if">
+                                <value name="IF0">
+                                    <block type="logic_compare">
+                                        <field name="OP">EQ</field>
+                                        <value name="A"><block type="pd_opponent_last_move"></block></value>
+                                        <value name="B"><block type="pd_move_cooperate"></block></value>
+                                    </block>
+                                </value>
+                                <statement name="DO0">
+                                    <block type="procedures_ifreturn"><value name="VALUE"><block type="pd_cooperate"></block></value></block>
+                                </statement>
+                            </block>
+                        </statement>
+                        <value name="RETURN"><block type="pd_defect"></block></value>
+                    </block>
+                </xml>`,
+            always_cooperate: `
+                <xml xmlns="https://developers.google.com/blockly/xml">
+                    <block type="procedures_defreturn" id="main_strategy_block" x="100" y="50" deletable="false" movable="false">
+                        <field name="NAME">my_strategy</field>
+                        <comment pinned="true" h="80" w="160">Always Cooperate.</comment>
+                        <value name="RETURN"><block type="pd_cooperate"></block></value>
+                    </block>
+                </xml>`,
+            always_defect: `
+                <xml xmlns="https://developers.google.com/blockly/xml">
+                    <block type="procedures_defreturn" id="main_strategy_block" x="100" y="50" deletable="false" movable="false">
+                        <field name="NAME">my_strategy</field>
+                        <comment pinned="true" h="80" w="160">Always Defect.</comment>
+                        <value name="RETURN"><block type="pd_defect"></block></value>
+                    </block>
+                </xml>`,
+            grudger: `
+                <xml xmlns="https://developers.google.com/blockly/xml">
+                    <block type="procedures_defreturn" id="main_strategy_block" x="100" y="50" deletable="false" movable="false">
+                        <field name="NAME">my_strategy</field>
+                        <comment pinned="true" h="100" w="220">Grudger: Cooperate until the opponent defects once, then always defect.</comment>
+                        <statement name="STACK">
+                            <block type="controls_if">
+                                <value name="IF0"><block type="pd_opponent_has_defected"></block></value>
+                                <statement name="DO0">
+                                    <block type="procedures_ifreturn"><value name="VALUE"><block type="pd_defect"></block></value></block>
+                                </statement>
+                            </block>
+                        </statement>
+                        <value name="RETURN"><block type="pd_cooperate"></block></value>
+                    </block>
+                </xml>`,
+             random: `
+                <xml xmlns="https://developers.google.com/blockly/xml">
+                    <block type="procedures_defreturn" id="main_strategy_block" x="100" y="50" deletable="false" movable="false">
+                        <field name="NAME">my_strategy</field>
+                        <comment pinned="true" h="80" w="160">Randomly choose a move.</comment>
+                        <statement name="STACK">
+                            <block type="controls_if">
+                                <value name="IF0">
+                                    <block type="logic_compare">
+                                        <field name="OP">GT</field>
+                                        <value name="A"><block type="math_random_float"></block></value>
+                                        <value name="B"><block type="math_number"><field name="NUM">0.5</field></block></value>
+                                    </block>
+                                </value>
+                                <statement name="DO0">
+                                    <block type="procedures_ifreturn"><value name="VALUE"><block type="pd_cooperate"></block></value></block>
+                                </statement>
+                            </block>
+                        </statement>
+                        <value name="RETURN"><block type="pd_defect"></block></value>
+                    </block>
+                </xml>`
+        };
+        
+        // --- Game Logic ---
+
+        const PREBUILT_STRATEGIES_JS = {
+            tit_for_tat: (myHistory, opponentHistory) => opponentHistory.length > 0 ? opponentHistory[opponentHistory.length - 1] : MOVES.COOPERATE,
+            always_cooperate: () => MOVES.COOPERATE,
+            always_defect: () => MOVES.DEFECT,
+            grudger: (myHistory, opponentHistory) => opponentHistory.includes(MOVES.DEFECT) ? MOVES.DEFECT : MOVES.COOPERATE,
+            random: () => Math.random() > 0.5 ? MOVES.COOPERATE : MOVES.DEFECT
+        };
+        
+        /**
+         * --- FIXED SIMULATION FUNCTION ---
+         * This version is more robust, secure, and efficient.
+         * It generates the user's strategy function once before the loop
+         * using the safer `new Function()` constructor instead of `eval()`.
+         */
+        function runSimulation() {
+            const resultsLog = document.getElementById('results-log');
+            resultsLog.innerHTML = '';
+
+            const opponentName = document.getElementById('opponent-select').value;
+            const opponentStrategyFn = PREBUILT_STRATEGIES_JS[opponentName];
+            const totalRounds = parseInt(document.getElementById('rounds-input').value, 10);
+
+            if (isNaN(totalRounds) || totalRounds <= 0) {
+                showAlert('Invalid Input', 'Number of rounds must be a positive number.');
+                return;
+            }
+
+            // 1. Generate the strategy code from Blockly once.
+            const functionCode = Blockly.JavaScript.workspaceToCode(workspace);
+
+            if (!functionCode || !functionCode.includes('my_strategy')) {
+                showAlert('Strategy Error', 'Your strategy is empty or invalid. Please connect blocks to the main strategy block.');
+                return;
+            }
+            
+            // 2. Create a reusable function safely without eval().
+            // The block generators create code that uses 'myHistory', 'opponentHistory', 
+            // and 'currentRound', which we now pass as arguments to the function.
+            let userStrategyFunction;
+            try {
+                userStrategyFunction = new Function('myHistory', 'opponentHistory', 'currentRound', `${functionCode}\nreturn my_strategy();`);
+            } catch (e) {
+                console.error("Error creating strategy function from blocks:", e);
+                showAlert('Strategy Error', 'Could not build your strategy from the blocks. Check the browser console for details.');
+                return;
+            }
+            
+            let yourHistory = [];
+            let opponentHistory = [];
+            let yourScore = 0;
+            let opponentScore = 0;
+
+            for (let i = 0; i < totalRounds; i++) {
+                let yourMove, opponentMove;
+
+                try {
+                    // 3. Call the created function with the current game state each round.
+                    yourMove = userStrategyFunction(yourHistory, opponentHistory, i);
+
+                    // 4. Add validation for the returned move to prevent errors.
+                    if (yourMove !== MOVES.COOPERATE && yourMove !== MOVES.DEFECT) {
+                        console.warn(`Strategy returned invalid move: "${yourMove}" on round ${i + 1}. Defaulting to COOPERATE.`);
+                        yourMove = MOVES.COOPERATE;
+                    }
+                } catch (e) {
+                    console.error("Error executing your strategy:", e);
+                    showAlert('Strategy Error', `Your strategy failed on round ${i+1}. Defaulting to COOPERATE. Check the console for details.`);
+                    yourMove = MOVES.COOPERATE; // Default to a safe move if the user's code fails
+                }
+                
+                opponentMove = opponentStrategyFn(yourHistory, opponentHistory);
+
+                const [yourPayoff, opponentPayoff] = PAYOFFS[yourMove][opponentMove];
+                yourScore += yourPayoff;
+                opponentScore += opponentPayoff;
+
+                yourHistory.push(yourMove);
+                opponentHistory.push(opponentMove);
+
+                const logEntry = document.createElement('div');
+                const yourMoveColor = yourMove === MOVES.COOPERATE ? 'text-green-400' : 'text-red-400';
+                const oppMoveColor = opponentMove === MOVES.COOPERATE ? 'text-green-400' : 'text-red-400';
+                logEntry.innerHTML = `
+                    Round ${String(i + 1).padStart(3, ' ')}: 
+                    You <span class="${yourMoveColor}">${yourMove.padEnd(9)}</span> | 
+                    Opponent <span class="${oppMoveColor}">${opponentMove.padEnd(9)}</span> | 
+                    Score: ${yourPayoff} vs ${opponentPayoff}
+                `;
+                resultsLog.appendChild(logEntry);
+            }
+
+            document.getElementById('your-score').textContent = yourScore;
+            document.getElementById('opponent-score').textContent = opponentScore;
+            resultsLog.scrollTop = resultsLog.scrollHeight;
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('run-simulation-btn').addEventListener('click', runSimulation);
+
+        document.getElementById('strategy-select').addEventListener('change', (e) => {
+            const selectedStrategy = e.target.value;
+            const xmlText = PREBUILT_STRATEGIES_XML[selectedStrategy];
+            if (xmlText) {
+                const xml = Blockly.utils.xml.textToDom(xmlText);
+                workspace.clear();
+                Blockly.Xml.domToWorkspace(xml, workspace);
+            }
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prisoner's Dilemma Algorithm Designer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-gradient-start: #7f7fd5;
+            --bg-gradient-end: #86a8e7;
+            --bg-gradient-final: #91eae4;
+            --surface-bg: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --primary-color: #6c63ff;
+            --primary-hover: #574feb;
+            --success-color: #28a745;
+            --success-hover: #218838;
+            --warning-color: #ffc107;
+            --warning-hover: #e0a800;
+            --info-color: #17a2b8;
+            --info-hover: #138496;
+            --code-bg: #2d3748;
+            --code-text: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end), var(--bg-gradient-final));
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--surface-bg);
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px var(--shadow-color);
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.25rem;
+            font-weight: 700;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+        h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 55% 45%;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .section {
+            background: #f7fafc;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .workspace-container {
+            height: 500px;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        button, .btn-label {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            display: inline-block;
+            text-align: center;
+        }
+
+        button:hover, .btn-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-success:hover { background: var(--success-hover); }
+        .btn-warning { background: var(--warning-color); color: black; }
+        .btn-warning:hover { background: var(--warning-hover); }
+        .btn-info { background: var(--info-color); color: white; }
+        .btn-info:hover { background: var(--info-hover); }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: var(--surface-bg);
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+
+        .score-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .score-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--surface-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .score-item .label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .score-item .score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        #opponent-score.score {
+            color: #e53e3e; /* A red color for the opponent */
+        }
+
+        .log-content {
+            height: 220px;
+            overflow-y: auto;
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'SF Mono', 'Consolas', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .log-content div {
+            border-bottom: 1px solid #4a5568;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .log-content div:last-child {
+            border-bottom: none;
+        }
+    </style>
+    
+    <script src="https://unpkg.com/blockly@9.3.1/blockly.min.js"></script>
+    <script src="https://unpkg.com/blockly@9.3.1/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly@9.3.1/javascript_compressed.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header><h1>🎯 Prisoner's Dilemma Algorithm Designer</h1></header>
+        <div class="main-content">
+            <div class="section">
+                <h2>Algorithm Designer</h2>
+                <div class="workspace-container"><div id="blockly-workspace" style="height: 100%;"></div></div>
+                <div class="controls">
+                    <button id="new-algorithm" class="btn-primary">New Algorithm</button>
+                    <button id="test-algorithm" class="btn-success">Test Algorithm</button>
+                    <button id="clear-workspace" class="btn-warning">Clear Workspace</button>
+                    <button id="save-strategy" class="btn-primary">Save Strategy</button>
+                    <label for="upload-strategy" class="btn-primary btn-label">Load Strategy</label>
+                    <input type="file" id="upload-strategy" style="display: none;" accept=".xml,.txt"/>
+                </div>
+            </div>
+            <div class="section">
+                <h2>Simulation</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <label for="opponent-strategy" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Opponent:</label>
+                        <select id="opponent-strategy">
+                            <option value="tit_for_tat">Tit for Tat</option>
+                            <option value="always_cooperate">Always Cooperate</option>
+                            <option value="always_defect">Always Defect</option>
+                            <option value="grudger">Grudger</option>
+                            <option value="tit_for_two_tats">Tit for two Tats</option>
+                            <option value="random">Random</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="rounds" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Rounds:</label>
+                        <input type="number" id="rounds" value="100" min="1" max="1000">
+                    </div>
+                </div>
+                <div class="results">
+                     <div class="score-display">
+                        <div class="score-item">
+                            <span class="label">Your Score</span>
+                            <span id="your-score" class="score">0</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="label">Opponent Score</span>
+                            <span id="opponent-score" class="score">0</span>
+                        </div>
+                    </div>
+                    <h4>Game Log</h4>
+                    <div id="game-log-content" class="log-content"><p>Run a test...</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Custom Block Definitions & Generators ---
+        Blockly.Blocks['prisoner_decision'] = { init: function() { this.appendDummyInput().appendField(new Blockly.FieldDropdown([["Cooperate", "COOPERATE"],["Defect", "DEFECT"]]), "DECISION"); this.setOutput(true, "Decision"); this.setColour(160); } };
+        Blockly.Blocks['opponent_last_move'] = { init: function() { this.appendDummyInput().appendField("Opponent's Last Move"); this.setOutput(true, "Decision"); this.setColour(210); } };
+        Blockly.Blocks['round_number'] = { init: function() { this.appendDummyInput().appendField("Round Number"); this.setOutput(true, "Number"); this.setColour(230); } };
+        Blockly.Blocks['return_decision'] = { init: function() { this.appendValueInput("DECISION").setCheck("Decision").appendField("return"); this.setPreviousStatement(true, null); this.setColour(160); } };
+
+        Blockly.JavaScript['prisoner_decision'] = (b) => [`'${b.getFieldValue('DECISION')}'`, Blockly.JavaScript.ORDER_ATOMIC];
+        Blockly.JavaScript['opponent_last_move'] = (b) => ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC];
+        Blockly.JavaScript['round_number'] = (b) => ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC];
+        Blockly.JavaScript['return_decision'] = (b) => `return ${Blockly.JavaScript.valueToCode(b, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'"};\n`;
+        Blockly.JavaScript['variables_set'] = function(b) { return `variables['${Blockly.JavaScript.variableDB_.getName(b.getFieldValue('VAR'),'VARIABLE')}'] = ${Blockly.JavaScript.valueToCode(b,'VALUE',Blockly.JavaScript.ORDER_ASSIGNMENT)||'0'};\n`};
+        Blockly.JavaScript['variables_get'] = function(b) { return [`variables['${Blockly.JavaScript.variableDB_.getName(b.getFieldValue('VAR'),'VARIABLE')}']`, Blockly.JavaScript.ORDER_ATOMIC]};
+        Blockly.JavaScript['math_change'] = function(b) { const v=Blockly.JavaScript.variableDB_.getName(b.getFieldValue('VAR'),'VARIABLE'); const d=Blockly.JavaScript.valueToCode(b,'DELTA',Blockly.JavaScript.ORDER_ADDITION)||'0'; return`variables['${v}']=(typeof variables['${v}']==='number'?variables['${v}']:0)+Number(${d});\n`};
+
+        // --- Toolbox Definition ---
+        const toolbox = { "kind": "categoryToolbox", "contents": [
+            { "kind": "category", "name": "Decisions", "colour": "160", "contents": [ { "kind": "block", "type": "prisoner_decision" }, { "kind": "block", "type": "return_decision" } ] },
+            { "kind": "category", "name": "Game State", "colour": "210", "contents": [ { "kind": "block", "type": "opponent_last_move" }, { "kind": "block", "type": "round_number" } ] },
+            { "kind": "category", "name": "Logic", "colour": "210", "contents": [ { "kind": "block", "type": "controls_if" }, { "kind": "block", "type": "logic_compare" } ] },
+            { "kind": "category", "name": "Math", "colour": "230", "contents": [ { "kind": "block", "type": "math_number" }, { "kind": "block", "type": "math_arithmetic" }, { "kind": "block", "type": "math_random_float" } ] },
+            { "kind": "category", "name": "Variables", "custom": "VARIABLE", "colour": "290" }
+        ]};
+
+        // --- Game Engine ---
+        class GameEngine {
+            run(algorithm, vs, rounds) {
+                const history = []; let p1s=0,p2s=0;
+                const persistentContext = { variables: {} };
+                for (let r = 1; r <= rounds; r++) {
+                    const p1s_moves = history.map(h => h.p1);
+                    const p1Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length-1].p2 : null, variables: persistentContext.variables };
+                    const p2Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length-1].p1 : null, opponentHistory: p1s_moves };
+                    try {
+                        const p1m = algorithm(p1Ctx); const p2m = this.strats[vs](p2Ctx);
+                        const sc = this.scores(p1m,p2m); p1s+=sc.p1; p2s+=sc.p2;
+                        history.push({r,p1:p1m,p2:p2m, p1Score: sc.p1, p2Score: sc.p2}); // ** MODIFIED **
+                    } catch (e) { alert("Error running algorithm: "+e.message); return null; }
+                }
+                return {history,p1s,p2s};
+            }
+            scores(m1,m2){if(m1==='COOPERATE'&&m2==='COOPERATE')return{p1:4,p2:4};if(m1==='DEFECT'&&m2==='COOPERATE')return{p1:5,p2:0};if(m1==='COOPERATE'&&m2==='DEFECT')return{p1:0,p2:5};return{p1:2,p2:2};}
+            constructor(){this.strats={'tit_for_tat':(c)=>(c.roundNumber===1)?'COOPERATE':c.opponentLastMove||'COOPERATE','always_cooperate':()=>'COOPERATE','always_defect':()=>'DEFECT','grudger':(c)=>c.opponentHistory.includes('DEFECT')?'DEFECT':'COOPERATE','tit_for_two_tats':(c)=>{if(c.roundNumber<=2)return 'COOPERATE';const lastTwo=c.opponentHistory.slice(-2);return(lastTwo.length===2&&lastTwo[0]==='DEFECT'&&lastTwo[1]==='DEFECT')?'DEFECT':'COOPERATE';},'random':()=>Math.random()>0.5?'COOPERATE':'DEFECT'};}
+        }
+
+        // --- Application Setup ---
+        let workspace = null; const gameEngine = new GameEngine();
+        window.addEventListener('load', () => {
+            workspace = Blockly.inject('blockly-workspace', { toolbox: toolbox, trashcan: true });
+            loadDefaultAlgorithm(); setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('new-algorithm').addEventListener('click', loadDefaultAlgorithm);
+            document.getElementById('test-algorithm').addEventListener('click', testAlgorithm);
+            document.getElementById('clear-workspace').addEventListener('click', () => { if (confirm('Clear workspace?')) workspace.clear(); });
+            document.getElementById('save-strategy').addEventListener('click', saveStrategy);
+            document.getElementById('upload-strategy').addEventListener('change', loadStrategy);
+        }
+
+        function saveStrategy() {
+            try {
+                const xml = Blockly.Xml.workspaceToDom(workspace);
+                const xmlText = Blockly.Xml.domToText(xml);
+                const blob = new Blob([xmlText], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'strategy.xml';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            } catch (e) {
+                alert('Error saving strategy: ' + e.message);
+            }
+        }
+
+        function loadStrategy(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const xmlText = e.target.result;
+                try {
+                    const xml = Blockly.Xml.textToDom(xmlText);
+                    workspace.clear();
+                    Blockly.Xml.domToWorkspace(xml, workspace);
+                } catch (e) {
+                    alert('Failed to load strategy. Make sure it is a valid strategy file.');
+                    console.error('Error loading strategy:', e);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function testAlgorithm() {
+            const code = Blockly.JavaScript.workspaceToCode(workspace);
+            if (!code) { alert("Workspace is empty!"); return; }
+            const algorithm = new Function('context', `const { roundNumber, opponentLastMove, variables } = context; ${code} return "COOPERATE";`);
+            const result = gameEngine.run(algorithm, document.getElementById('opponent-strategy').value, parseInt(document.getElementById('rounds').value));
+            if (!result) return;
+            
+            // ** ADDED BACK ** UI update logic
+            document.getElementById('your-score').textContent = result.p1s;
+            document.getElementById('opponent-score').textContent = result.p2s;
+            document.getElementById('game-log-content').innerHTML = result.history.map(h => `<div>Round ${h.r}: You ${h.p1}, Opponent ${h.p2} (${h.p1Score}-${h.p2Score})</div>`).join('');
+        }
+        
+        function loadDefaultAlgorithm() {
+            workspace.clear();
+            const xml = `
+            <xml xmlns="https://developers.google.com/blockly/xml">
+              <variables><variable>counter</variable></variables>
+              <block type="controls_if" x="50" y="50">
+                <value name="IF0">
+                  <block type="logic_compare">
+                    <field name="OP">EQ</field>
+                    <value name="A"><block type="round_number"></block></value>
+                    <value name="B"><block type="math_number"><field name="NUM">1</field></block></value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="variables_set">
+                    <field name="VAR">counter</field>
+                    <value name="VALUE"><block type="math_number"><field name="NUM">0</field></block></value>
+                  </block>
+                </statement>
+                <next>
+                  <block type="math_change">
+                    <field name="VAR">counter</field>
+                    <value name="DELTA"><block type="math_number"><field name="NUM">1</field></block></value>
+                    <next>
+                      <block type="controls_if">
+                        <mutation else="1"></mutation>
+                        <value name="IF0">
+                          <block type="logic_compare">
+                            <field name="OP">LTE</field>
+                            <value name="A"><block type="variables_get"><field name="VAR">counter</field></block></value>
+                            <value name="B"><block type="math_number"><field name="NUM">4</field></block></value>
+                          </block>
+                        </value>
+                        <statement name="DO0">
+                          <block type="return_decision">
+                            <value name="DECISION"><block type="prisoner_decision"><field name="DECISION">COOPERATE</field></block></value>
+                          </block>
+                        </statement>
+                        <statement name="ELSE">
+                           <block type="return_decision">
+                            <value name="DECISION"><block type="prisoner_decision"><field name="DECISION">DEFECT</field></block></value>
+                          </block>
+                        </statement>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </xml>`;
+            try { Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(xml), workspace); }
+            catch(e) { alert("Critical error: Default algorithm is broken."); }
+        }
+    </script>
+</body>
+</html>
