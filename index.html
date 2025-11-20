@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRISONER COMIC // v4.1 (Random Only)</title>
+    <title>PRISONER COMIC // v4.2 (Nuclear Fix)</title>
     
-    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
-    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
-    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
-    <script src="https://unpkg.com/blockly/msg/en.js"></script>
+    <script src="https://unpkg.com/blockly@9.3.1/blockly.min.js"></script>
+    <script src="https://unpkg.com/blockly@9.3.1/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly@9.3.1/javascript_compressed.js"></script>
+    <script src="https://unpkg.com/blockly@9.3.1/msg/en.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Patrick+Hand&display=swap');
@@ -35,7 +35,6 @@
 
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
 
-        /* Header */
         header {
             text-align: center; margin-bottom: 2rem;
             display: flex; flex-direction: column; align-items: center;
@@ -52,7 +51,6 @@
             font-family: 'Patrick Hand', cursive; color: #666; font-size: 1.2rem; font-weight: bold;
         }
 
-        /* Layout */
         .main-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2rem; }
         
         .panel {
@@ -70,7 +68,6 @@
             padding-bottom: 0.5rem; display: flex; align-items: center;
         }
 
-        /* Controls */
         .controls-bar { display: flex; gap: 0.8rem; margin-top: 1rem; flex-wrap: wrap; }
         
         button, .btn-label {
@@ -93,14 +90,12 @@
             width: 100%; border-radius: 0; box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
         }
 
-        /* Workspace */
         #blockly-workspace {
             height: 550px; width: 100%;
             border: var(--border-width) solid #000;
             background: #f9f9f9;
         }
 
-        /* Scoreboard */
         .score-board { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         .score-card {
             background: #fff; border: var(--border-width) solid #000;
@@ -110,7 +105,6 @@
         .score-p1 { color: var(--primary-accent); }
         .score-p2 { color: #e53e3e; }
 
-        /* Logs */
         .log-container {
             height: 250px; overflow-y: auto;
             border: var(--border-width) solid #000; padding: 0.8rem;
@@ -118,14 +112,12 @@
         }
         .log-entry { border-bottom: 1px dashed #ccc; padding: 2px 0; }
 
-        /* Tournament */
         .tournament-section { margin-top: 2rem; grid-column: 1 / -1; }
         .strategy-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.8rem; margin-top: 0.5rem; }
         .strategy-item {
             background: #fff; border: 2px solid #eee; padding: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
             font-weight: bold;
         }
-        .strategy-item:hover { border-color: #000; }
         
         .results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         .results-table th { text-align: left; padding: 0.8rem; border-bottom: var(--border-width) solid #000; font-family: 'Patrick Hand'; }
@@ -234,10 +226,12 @@
     </div>
 
     <script>
-        // --- 1. BLOCK & GENERATOR REGISTRATION ---
-        function registerMechanisms() {
-            if (typeof Blockly === 'undefined') return;
-
+        // --- 1. DEFINE EVERYTHING ---
+        
+        // Block Definitions
+        function defineBlocks() {
+            if(typeof Blockly === 'undefined') return;
+            
             Blockly.Blocks['prisoner_decision'] = {
                 init: function() {
                     this.appendDummyInput().appendField(new Blockly.FieldDropdown([["Cooperate", "COOPERATE"],["Defect", "DEFECT"]]), "DECISION");
@@ -266,28 +260,33 @@
                     this.setColour(160);
                 }
             };
-
-            if (typeof Blockly.JavaScript !== 'undefined') {
-                Blockly.JavaScript['prisoner_decision'] = function(block) {
-                    return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC];
-                };
-                Blockly.JavaScript['opponent_last_move'] = function(block) {
-                    return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC];
-                };
-                Blockly.JavaScript['round_number'] = function(block) {
-                    return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC];
-                };
-                Blockly.JavaScript['return_decision'] = function(block) {
-                    var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
-                    return "return " + code + ";\n";
-                };
-            }
         }
 
-        // --- 2. LOGIC ENGINE ---
+        // Generator Definitions (The fix for your error)
+        function defineGenerators() {
+            if(typeof Blockly === 'undefined' || typeof Blockly.JavaScript === 'undefined') {
+                console.warn("Blockly.JavaScript missing, waiting...");
+                return;
+            }
+
+            Blockly.JavaScript['prisoner_decision'] = function(block) {
+                return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC];
+            };
+            Blockly.JavaScript['opponent_last_move'] = function(block) {
+                return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC];
+            };
+            Blockly.JavaScript['round_number'] = function(block) {
+                return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC];
+            };
+            Blockly.JavaScript['return_decision'] = function(block) {
+                var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
+                return "return " + code + ";\n";
+            };
+        }
+
+        // --- 2. GAME ENGINE ---
         class GameEngine {
             constructor() {
-                // UPDATED: ONLY RANDOM STRATEGY
                 this.strats = {
                     'random': () => Math.random() > 0.5 ? 'COOPERATE' : 'DEFECT'
                 };
@@ -326,15 +325,16 @@
             }
         }
 
-        // --- 3. MAIN SETUP ---
+        // --- 3. APP LOGIC ---
         let workspace = null;
         const gameEngine = new GameEngine();
         let uploadedStrategies = [];
 
         window.addEventListener('load', () => {
-            if(typeof Blockly === 'undefined') return alert("Libraries failed to load. Check connection.");
-
-            registerMechanisms();
+            if(typeof Blockly === 'undefined') return alert("Error: Libraries not loaded. Please check connection.");
+            
+            defineBlocks();
+            defineGenerators(); // Register immediately on load
 
             // Init UI
             const opponentSelect = document.getElementById('opponent-strategy');
@@ -353,14 +353,14 @@
                 </div>
             `).join('');
 
-            // Inject Blockly
+            // Inject
             workspace = Blockly.inject('blockly-workspace', {
                 toolbox: document.getElementById('toolbox'),
                 trashcan: true,
                 theme: Blockly.Themes.Classic
             });
 
-            // Listeners
+            // Events
             document.getElementById('new-algorithm').addEventListener('click', loadDefaultAlgorithm);
             document.getElementById('test-algorithm').addEventListener('click', testAlgorithm);
             document.getElementById('clear-workspace').addEventListener('click', () => confirm('Clear?') && workspace.clear());
@@ -379,13 +379,15 @@
         }
 
         function testAlgorithm() {
-            registerMechanisms();
+            // FORCE RE-REGISTRATION OF GENERATORS HERE
+            // This fixes the "Unknown block type" error by ensuring they exist right before we need them
+            defineGenerators(); 
 
             let code = "";
             try {
                 if(Blockly.JavaScript.init) Blockly.JavaScript.init(workspace);
                 code = Blockly.JavaScript.workspaceToCode(workspace);
-            } catch(e) { return alert("Code Generation Error: " + e.message); }
+            } catch(e) { return alert("Code Generation Error: " + e.message + ". Try Refreshing."); }
 
             const funcBody = `const {roundNumber, opponentLastMove, variables} = context; ${code} return 'COOPERATE';`;
             let algorithm;
@@ -449,7 +451,7 @@
             document.getElementById('tournament-results-container').style.display = 'none';
 
             setTimeout(() => {
-                registerMechanisms();
+                defineGenerators(); // Safety check
 
                 const players = [];
                 document.querySelectorAll('#preset-strategies-list input:checked').forEach(i => {
@@ -470,6 +472,7 @@
 
                 if(players.length < 2) { btn.disabled=false; btn.textContent='RUN TOURNAMENT'; return alert("Select 2+ strategies"); }
 
+                // Round Robin
                 for(let i=0; i<players.length; i++) {
                     for(let j=i; j<players.length; j++) {
                         let p1s=0, p2s=0;
