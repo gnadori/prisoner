@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRISONER COMIC // v3.4</title>
+    <title>PRISONER COMIC // v3.5 (Debugged)</title>
     
     <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
     <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
@@ -221,44 +221,57 @@
 </div>
 
 <script>
-    // --- 1. Block Definitions ---
-    Blockly.Blocks['prisoner_decision'] = {
-        init: function() {
-            this.appendDummyInput().appendField("Decision").appendField(new Blockly.FieldDropdown([["COOPERATE","COOPERATE"], ["DEFECT","DEFECT"]]), "DECISION");
-            this.setOutput(true, "Decision");
-            this.setColour(160);
+    // --- 1. SAFETY CHECK: Ensure Libraries Loaded ---
+    function checkLibraries() {
+        if (typeof Blockly === 'undefined') {
+            alert("Error: Blockly libraries failed to load. Please check your internet connection or refresh.");
+            return false;
         }
-    };
-    Blockly.Blocks['opponent_last_move'] = {
-        init: function() {
-            this.appendDummyInput().appendField("Opponent's Last Move");
-            this.setOutput(true, "Decision");
-            this.setColour(230);
-        }
-    };
-    Blockly.Blocks['round_number'] = {
-        init: function() {
-            this.appendDummyInput().appendField("Round Number");
-            this.setOutput(true, "Number");
-            this.setColour(280);
-        }
-    };
-    Blockly.Blocks['return_decision'] = {
-        init: function() {
-            this.appendValueInput("DECISION").setCheck("Decision").appendField("Play Card:");
-            this.setPreviousStatement(true, null);
-            this.setColour(160);
-        }
-    };
+        return true;
+    }
 
-    // --- 2. Generators ---
-    Blockly.JavaScript['prisoner_decision'] = function(block) { return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC]; };
-    Blockly.JavaScript['opponent_last_move'] = function(block) { return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC]; };
-    Blockly.JavaScript['round_number'] = function(block) { return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC]; };
-    Blockly.JavaScript['return_decision'] = function(block) { 
-        var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
-        return "return " + code + ";\n";
-    };
+    // --- 2. Register Blocks (Wrapped for safety) ---
+    function registerBlocks() {
+        if(!checkLibraries()) return;
+        
+        Blockly.Blocks['prisoner_decision'] = {
+            init: function() {
+                this.appendDummyInput().appendField("Decision").appendField(new Blockly.FieldDropdown([["COOPERATE","COOPERATE"], ["DEFECT","DEFECT"]]), "DECISION");
+                this.setOutput(true, "Decision");
+                this.setColour(160);
+            }
+        };
+        Blockly.Blocks['opponent_last_move'] = {
+            init: function() {
+                this.appendDummyInput().appendField("Opponent's Last Move");
+                this.setOutput(true, "Decision");
+                this.setColour(230);
+            }
+        };
+        Blockly.Blocks['round_number'] = {
+            init: function() {
+                this.appendDummyInput().appendField("Round Number");
+                this.setOutput(true, "Number");
+                this.setColour(280);
+            }
+        };
+        Blockly.Blocks['return_decision'] = {
+            init: function() {
+                this.appendValueInput("DECISION").setCheck("Decision").appendField("Play Card:");
+                this.setPreviousStatement(true, null);
+                this.setColour(160);
+            }
+        };
+
+        // Javascript Generators
+        Blockly.JavaScript['prisoner_decision'] = function(block) { return ["'" + block.getFieldValue('DECISION') + "'", Blockly.JavaScript.ORDER_ATOMIC]; };
+        Blockly.JavaScript['opponent_last_move'] = function(block) { return ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC]; };
+        Blockly.JavaScript['round_number'] = function(block) { return ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC]; };
+        Blockly.JavaScript['return_decision'] = function(block) { 
+            var code = Blockly.JavaScript.valueToCode(block, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'";
+            return "return " + code + ";\n";
+        };
+    }
 
     // --- 3. Game Logic ---
     class GameEngine {
@@ -273,16 +286,30 @@
         run(algorithm, vs, rounds) {
             const history = [];
             let p1s = 0, p2s = 0;
-            const persistentContext = { variables: {} };
             
             for(let r=1; r<=rounds; r++){
-                const p1Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length-1].p2 : null, variables: persistentContext.variables };
-                const p2Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length-1].p1 : null, opponentHistory: history.map(h=>h.p1) };
+                const p1Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length-1].p2 : null };
+                const p2Ctx = { roundNumber: r, opponentLastMove: history.length > 0 ? history[history.length-1].p1 : null };
                 
-                let p1m, p2m;
-                try { p1m = algorithm(p1Ctx); } catch(e) { console.error(e); p1m = 'COOPERATE'; }
-                try { p2m = this.strats[vs](p2Ctx); } catch(e) { p2m = 'COOPERATE'; }
+                let p1m = 'COOPERATE', p2m = 'COOPERATE';
+                
+                // Run Player 1 (User)
+                try { 
+                    p1m = algorithm(p1Ctx); 
+                } catch(e) { 
+                    console.error("Algo Error:", e); 
+                }
 
+                // Run Player 2 (Bot)
+                try { 
+                    if(this.strats[vs]) {
+                        p2m = this.strats[vs](p2Ctx);
+                    } else {
+                        p2m = this.strats['random'](p2Ctx);
+                    }
+                } catch(e) { console.error("Bot Error"); }
+
+                // Safety Validations
                 if(p1m !== 'COOPERATE' && p1m !== 'DEFECT') p1m = 'COOPERATE';
                 if(p2m !== 'COOPERATE' && p2m !== 'DEFECT') p2m = 'COOPERATE';
 
@@ -306,19 +333,18 @@
     let uploadedStrategies = [];
 
     window.addEventListener('load', function() {
-        // Initialize UI FIRST (So it works even if Blockly fails)
+        registerBlocks();
         setupUI();
         setupEvents();
-
-        // Then Inject Blockly
-        workspace = Blockly.inject('blockly-container', {
-            toolbox: document.getElementById('toolbox'),
-            trashcan: true,
-            theme: Blockly.Themes.Classic
-        });
         
-        // Then Load Blocks
-        setTimeout(loadDefaultAlgorithm, 100); 
+        if(typeof Blockly !== 'undefined') {
+            workspace = Blockly.inject('blockly-container', {
+                toolbox: document.getElementById('toolbox'),
+                trashcan: true,
+                theme: Blockly.Themes.Classic
+            });
+            setTimeout(loadDefaultAlgorithm, 200);
+        }
     });
 
     function setupUI() {
@@ -330,8 +356,7 @@
             opt.value = k; opt.textContent = k.toUpperCase().replace(/_/g,' ');
             sel.appendChild(opt);
         });
-        // Default to Random
-        sel.value = 'random';
+        sel.value = 'random'; // Default
 
         // Tournament Presets
         const list = document.getElementById('preset-strategies-list');
@@ -341,7 +366,13 @@
     }
 
     function setupEvents() {
-        document.getElementById('test-algorithm').addEventListener('click', runTest);
+        document.getElementById('test-algorithm').addEventListener('click', function() {
+            try {
+                runTest();
+            } catch(e) {
+                alert("Global execution error: " + e.message);
+            }
+        });
         document.getElementById('new-algorithm').addEventListener('click', loadDefaultAlgorithm);
         document.getElementById('clear-workspace').addEventListener('click', () => confirm('Clear?') && workspace.clear());
         document.getElementById('save-strategy').addEventListener('click', downloadXML);
@@ -353,24 +384,35 @@
     function loadDefaultAlgorithm() {
         if(!workspace) return;
         workspace.clear();
-        // Define default: Always Cooperate
         const xmlText = `<xml xmlns="https://developers.google.com/blockly/xml"><block type="return_decision" x="50" y="50"><value name="DECISION"><block type="prisoner_decision"><field name="DECISION">COOPERATE</field></block></value></block></xml>`;
         try {
             Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(xmlText), workspace);
-        } catch(e) {
-            console.error("XML Load Error: ", e);
-        }
+        } catch(e) { console.log("XML load issue", e); }
     }
 
     function runTest() {
-        const code = Blockly.JavaScript.workspaceToCode(workspace);
-        if(!code) return alert("Empty workspace!");
+        if (!workspace) return;
         
-        const funcBody = `const {roundNumber, opponentLastMove, variables} = context; ${code} return 'COOPERATE';`;
-        const algorithm = new Function('context', funcBody);
+        let code = "";
+        try {
+            code = Blockly.JavaScript.workspaceToCode(workspace);
+        } catch (e) {
+            alert("Error generating code from blocks. Please reset.");
+            return;
+        }
+
+        const funcBody = `const {roundNumber, opponentLastMove} = context; ${code} return 'COOPERATE';`;
+        let algorithm;
+        try {
+            algorithm = new Function('context', funcBody);
+        } catch(e) {
+            alert("Error compiling strategy: " + e.message);
+            return;
+        }
         
         const opponent = document.getElementById('opponent-strategy').value || 'random';
-        const rounds = parseInt(document.getElementById('rounds').value) || 100;
+        let rounds = parseInt(document.getElementById('rounds').value);
+        if(isNaN(rounds) || rounds < 1) rounds = 10; // Fallback
         
         const res = gameEngine.run(algorithm, opponent, rounds);
         
@@ -407,44 +449,53 @@
         btn.disabled = true; btn.textContent = "RUNNING...";
         document.getElementById('tournament-results-container').style.display = 'none';
 
+        setTimeout(() => {
+            try {
+                executeTournament();
+            } catch(e) {
+                alert("Tournament failed: " + e.message);
+                btn.disabled = false; btn.textContent = "RUN TOURNAMENT";
+            }
+        }, 100);
+    }
+
+    function executeTournament() {
         const players = [];
         
-        // Gather Checked Presets
-        const presetChecks = document.querySelectorAll('#preset-strategies-list input[type="checkbox"]:checked');
-        presetChecks.forEach(i => {
+        // Presets
+        document.querySelectorAll('#preset-strategies-list input:checked').forEach(i => {
             players.push({name: i.value, fn: gameEngine.strats[i.value], score:0});
         });
 
-        // Gather Checked Uploads
-        const uploadChecks = document.querySelectorAll('#uploaded-files-list input[type="checkbox"]:checked');
-        uploadChecks.forEach(i => {
+        // Uploads
+        document.querySelectorAll('#uploaded-files-list input:checked').forEach(i => {
             const data = uploadedStrategies.find(u => u.name === i.value);
             if(data) {
                 const ws = new Blockly.Workspace();
                 Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(data.xml), ws);
                 const code = Blockly.JavaScript.workspaceToCode(ws);
                 ws.dispose();
-                const fn = new Function('context', `const {roundNumber, opponentLastMove, variables} = context; ${code} return 'COOPERATE';`);
+                const fn = new Function('context', `const {roundNumber, opponentLastMove} = context; ${code} return 'COOPERATE';`);
                 players.push({name: data.name, fn, score:0});
             }
         });
 
         if(players.length < 2) { 
             alert("Please select at least 2 strategies!"); 
-            btn.disabled=false; 
-            btn.textContent="RUN TOURNAMENT"; 
+            document.getElementById('run-tournament').disabled = false; 
+            document.getElementById('run-tournament').textContent = "RUN TOURNAMENT";
             return; 
         }
 
-        // Round Robin Simulation
+        // Round Robin
         for(let i=0; i<players.length; i++) {
             for(let j=i; j<players.length; j++) {
                 const rounds = 100;
                 let h1=[], h2=[], p1s=0, p2s=0;
                 
                 for(let r=1; r<=rounds; r++) {
-                    const ctx1 = {roundNumber:r, opponentLastMove: h2.length?h2[h2.length-1]:null, opponentHistory:h2};
-                    const ctx2 = {roundNumber:r, opponentLastMove: h1.length?h1[h1.length-1]:null, opponentHistory:h1};
+                    const ctx1 = {roundNumber:r, opponentLastMove: h2.length?h2[h2.length-1]:null};
+                    const ctx2 = {roundNumber:r, opponentLastMove: h1.length?h1[h1.length-1]:null};
                     let m1='COOPERATE', m2='COOPERATE';
                     try { m1 = players[i].fn(ctx1); } catch(e){}
                     try { m2 = players[j].fn(ctx2); } catch(e){}
@@ -456,16 +507,12 @@
                     h1.push(m1); h2.push(m2);
                 }
                 
-                if(i===j) { 
-                    players[i].score += p1s; // Self-play adds to own score
-                } else { 
-                    players[i].score += p1s; 
-                    players[j].score += p2s; 
-                }
+                players[i].score += p1s; 
+                if(i!==j) players[j].score += p2s; 
             }
         }
 
-        // Render Leaderboard
+        // Render
         const body = document.getElementById('tournament-results-body');
         body.innerHTML = '';
         players.sort((a,b) => b.score - a.score).forEach((p, idx) => {
@@ -476,7 +523,8 @@
         });
         
         document.getElementById('tournament-results-container').style.display = 'block';
-        btn.disabled = false; btn.textContent = "RUN TOURNAMENT";
+        document.getElementById('run-tournament').disabled = false; 
+        document.getElementById('run-tournament').textContent = "RUN TOURNAMENT";
     }
 
     // XML Helpers
