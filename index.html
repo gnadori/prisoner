@@ -4,21 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRISONER COMIC // v3.1</title>
+    <title>PRISONER COMIC // v3.2 (Fixed)</title>
     
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
     <script src="https://unpkg.com/blockly/blocks.min.js"></script>
     <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
-
-    <style>
+    <script src="https://unpkg.com/blockly/en.js"></script> <style>
         @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Patrick+Hand&display=swap');
 
         :root {
             --bg-color: #ffffff;
             --panel-bg: #ffffff;
             --border-color: #000000;
-            --primary-accent: #ff0000; /* Red shirt */
-            --secondary-accent: #0099ff; /* Blue shirt */
+            --primary-accent: #ff0000;
+            --secondary-accent: #0099ff;
             --success-color: #00cc00;
             --text-color: #000000;
             --border-width: 3px;
@@ -96,7 +95,7 @@
             padding: 2rem;
             box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
             position: relative;
-            border-radius: 0; /* Hard corners for comic look */
+            border-radius: 0;
         }
 
         h2 {
@@ -170,18 +169,7 @@
             width: 100%;
             border: var(--border-width) solid var(--border-color);
             background: #f9f9f9;
-        }
-
-        /* Blockly Overrides for Comic Theme */
-        .blocklyToolboxDiv {
-            background-color: #eee !important;
-            color: #000;
-            border-right: var(--border-width) solid var(--border-color);
-        }
-        .blocklyTreeLabel {
-            color: #000 !important;
-            font-family: 'Comic Neue', cursive;
-            font-weight: bold;
+            display: block; /* Force display */
         }
 
         /* --- Results --- */
@@ -288,6 +276,30 @@
                     <div style="flex-grow:1"></div>
                     <button id="new-algorithm" class="btn-label" style="font-size:1rem; padding:0.4rem 0.8rem">RESET</button>
                 </h2>
+                
+                <xml id="toolbox" style="display: none">
+                    <category name="Decisions" colour="160">
+                        <block type="prisoner_decision"></block>
+                        <block type="return_decision"></block>
+                    </category>
+                    <category name="Game State" colour="230">
+                        <block type="opponent_last_move"></block>
+                        <block type="round_number"></block>
+                    </category>
+                    <category name="Logic" colour="210">
+                        <block type="controls_if"></block>
+                        <block type="logic_compare"></block>
+                        <block type="logic_operation"></block>
+                        <block type="logic_boolean"></block>
+                    </category>
+                    <category name="Math" colour="280">
+                        <block type="math_number"></block>
+                        <block type="math_arithmetic"></block>
+                        <block type="math_random_float"></block>
+                    </category>
+                    <category name="Variables" custom="VARIABLE" colour="330"></category>
+                </xml>
+
                 <div id="blockly-workspace"></div>
 
                 <div class="controls-bar">
@@ -330,8 +342,6 @@
 
             <div class="panel tournament-section">
                 <h2>TOURNAMENT MODE</h2>
-                <p style="color:#666; font-family:'Comic Neue'; margin-bottom:1rem">Who is the best prisoner? Fight!</p>
-
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem">
                     <div>
                         <h3 style="color:#000; font-family:'Patrick Hand'; font-size:1.2rem; border-bottom:2px solid #000; padding-bottom:0.5rem">PRESETS</h3>
@@ -355,11 +365,7 @@
                     <h3 style="color:#000; text-align:center; margin-bottom:1rem; font-family:'Patrick Hand'; font-size:2rem">LEADERBOARD</h3>
                     <table class="results-table">
                         <thead>
-                            <tr>
-                                <th>RANK</th>
-                                <th>STRATEGY</th>
-                                <th style="text-align:right">SCORE</th>
-                            </tr>
+                            <tr><th>RANK</th><th>STRATEGY</th><th style="text-align:right">SCORE</th></tr>
                         </thead>
                         <tbody id="tournament-results-body"></tbody>
                     </table>
@@ -410,37 +416,14 @@
         Blockly.JavaScript['round_number'] = (b) => ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC];
         Blockly.JavaScript['return_decision'] = (b) => `return ${Blockly.JavaScript.valueToCode(b, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'"};\n`;
 
-        // --- 3. Define Toolbox ---
-        const toolbox = {
-            "kind": "categoryToolbox",
-            "contents": [
-                {
-                    "kind": "category", "name": "Decisions", "colour": "160",
-                    "contents": [{ "kind": "block", "type": "prisoner_decision" }, { "kind": "block", "type": "return_decision" }]
-                },
-                {
-                    "kind": "category", "name": "Game State", "colour": "230",
-                    "contents": [{ "kind": "block", "type": "opponent_last_move" }, { "kind": "block", "type": "round_number" }]
-                },
-                {
-                    "kind": "category", "name": "Logic", "colour": "210",
-                    "contents": [{ "kind": "block", "type": "controls_if" }, { "kind": "block", "type": "logic_compare" }]
-                },
-                {
-                    "kind": "category", "name": "Math", "colour": "280",
-                    "contents": [{ "kind": "block", "type": "math_number" }, { "kind": "block", "type": "math_arithmetic" }, { "kind": "block", "type": "math_random_float" }]
-                },
-                { "kind": "category", "name": "Variables", "custom": "VARIABLE", "colour": "330" }
-            ]
-        };
-
-        // --- 4. Game Engine ---
+        // --- 3. Game Engine ---
         class GameEngine {
             constructor() {
                 this.strats = {
                     'random': () => Math.random() > 0.5 ? 'COOPERATE' : 'DEFECT',
                     'always_defect': () => 'DEFECT',
-                    'always_cooperate': () => 'COOPERATE'
+                    'always_cooperate': () => 'COOPERATE',
+                    'tit_for_tat': (ctx) => ctx.opponentLastMove || 'COOPERATE'
                 };
             }
 
@@ -465,13 +448,14 @@
                     try {
                         let p1m = algorithm(p1Ctx);
                         let p2m = this.strats[vs](p2Ctx);
+                        
+                        // Validate moves
                         if (p1m !== 'COOPERATE' && p1m !== 'DEFECT') p1m = 'COOPERATE';
                         if (p2m !== 'COOPERATE' && p2m !== 'DEFECT') p2m = 'COOPERATE';
 
                         const sc = this.scores(p1m, p2m);
                         p1s += sc.p1;
                         p2s += sc.p2;
-
                         history.push({ r, p1: p1m, p2: p2m, p1Score: sc.p1, p2Score: sc.p2 });
                     } catch (e) {
                         alert("Error running algorithm: " + e.message);
@@ -489,14 +473,15 @@
             }
         }
 
-        // --- 5. Application Setup ---
+        // --- 4. Application Setup ---
         let workspace = null;
         const gameEngine = new GameEngine();
         let uploadedStrategies = [];
 
         window.addEventListener('load', () => {
+            // Inject Blockly using the XML Toolbox ID
             workspace = Blockly.inject('blockly-workspace', {
-                toolbox: toolbox,
+                toolbox: document.getElementById('toolbox'),
                 trashcan: true,
                 theme: Blockly.Themes.Classic
             });
@@ -512,7 +497,7 @@
             Object.keys(gameEngine.strats).forEach(name => {
                 const option = document.createElement('option');
                 option.value = name;
-                option.textContent = name.toUpperCase();
+                option.textContent = name.toUpperCase().replace(/_/g, ' ');
                 opponentSelect.appendChild(option);
             });
 
@@ -520,7 +505,7 @@
             presetsContainer.innerHTML = Object.keys(gameEngine.strats).map(name => 
                 `<div class="strategy-item"> 
                     <input type="checkbox" id="preset-${name}" value="${name}" checked>
-                    <label for="preset-${name}" style="cursor:pointer">${name.toUpperCase()}</label>
+                    <label for="preset-${name}" style="cursor:pointer">${name.toUpperCase().replace(/_/g, ' ')}</label>
                 </div>`
             ).join('');
         }
@@ -539,7 +524,7 @@
 
         function loadDefaultAlgorithm() {
             workspace.clear();
-            // --- MODIFIED DEFAULT: ALWAYS COOPERATE ---
+            // --- DEFAULT: ALWAYS COOPERATE ---
             const xml = `<xml xmlns="https://developers.google.com/blockly/xml">
                 <block type="return_decision" x="70" y="70">
                     <value name="DECISION">
@@ -549,7 +534,6 @@
                     </value>
                 </block>
             </xml>`;
-
             try {
                 Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(xml), workspace);
             } catch (e) {
@@ -561,7 +545,13 @@
             const code = Blockly.JavaScript.workspaceToCode(workspace);
             if (!code) { alert("Workspace is empty!"); return; }
 
-            const algorithm = new Function('context', `const { roundNumber, opponentLastMove, variables } = context; ${code} return "COOPERATE";`);
+            // Wrap code to safely use variables without definition error
+            const algorithm = new Function('context', `
+                const { roundNumber, opponentLastMove, variables } = context; 
+                ${code} 
+                return "COOPERATE"; 
+            `);
+            
             const opponentName = document.getElementById('opponent-strategy').value;
             const rounds = parseInt(document.getElementById('rounds').value);
 
@@ -659,7 +649,6 @@
                 currentIndex: 0
             };
 
-            // Gather Players
             document.querySelectorAll('#preset-strategies-list input:checked').forEach(cb => {
                 tournamentState.players.push({ name: cb.value, strategyFn: gameEngine.strats[cb.value] });
                 tournamentState.totalScores[cb.value] = 0;
@@ -688,7 +677,6 @@
                 return;
             }
 
-            // Generate Pairings
             for (let i = 0; i < tournamentState.players.length; i++) {
                 for (let j = i; j < tournamentState.players.length; j++) {
                     tournamentState.pairings.push({ p1: i, p2: j });
@@ -751,7 +739,7 @@
                 const tr = document.createElement('tr');
                 const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
                 tr.innerHTML = `<td class="${rankClass}">#${idx + 1}</td>
-                                <td style="font-weight:bold; color:var(--text-color)">${name.toUpperCase()}</td>
+                                <td style="font-weight:bold; color:var(--text-color)">${name.toUpperCase().replace(/_/g, ' ')}</td>
                                 <td style="text-align:right; font-family:'Patrick Hand'">${score}</td>`;
                 tbody.appendChild(tr);
             });
