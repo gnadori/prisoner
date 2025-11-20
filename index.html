@@ -4,81 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEON PRISONER // v3.0</title>
+    <title>PRISONER COMIC // v3.0</title>
     
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
     <script src="https://unpkg.com/blockly/blocks.min.js"></script>
-    <script src="https://unpkg.com/blockly/javascript.min.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Patrick+Hand&display=swap');
 
         :root {
-            --bg-dark: #050510;
-            --bg-panel: rgba(20, 20, 35, 0.7);
-            --primary-neon: #00f3ff;
-            --secondary-neon: #bc13fe;
-            --accent-neon: #00ff9d;
-            --text-main: #e0e0ff;
-            --text-dim: #8a8ab5;
-            --border-glow: 0 0 10px rgba(0, 243, 255, 0.3);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --bg-color: #ffffff;
+            --panel-bg: #ffffff;
+            --border-color: #000000;
+            --primary-accent: #ff0000; /* Red shirt */
+            --secondary-accent: #0099ff; /* Blue shirt */
+            --success-color: #00cc00;
+            --text-color: #000000;
+            --border-width: 3px;
+            --shadow-offset: 5px;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Comic Neue', cursive;
             margin: 0;
             padding: 0;
-            background-color: var(--bg-dark);
-            background-image:
-                radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.1) 0%, transparent 20%),
-                linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, transparent 1px),
-                linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0%, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
-            color: var(--text-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+        .container { max-width: 1600px; margin: 0 auto; padding: 2rem; }
 
         /* --- Header --- */
         header {
             text-align: center;
             margin-bottom: 3rem;
-            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
+        .hero-image {
+            max-width: 600px;
+            width: 100%;
+            border: var(--border-width) solid var(--border-color);
+            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
+            margin-bottom: 1.5rem;
+            background: #fff;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Patrick Hand';
+            font-size: 2rem;
+            color: #ccc;
+        }
+
         h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 3.5rem;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 4rem;
             margin: 0;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            background: linear-gradient(90deg, var(--primary-neon), #fff, var(--secondary-neon));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+            letter-spacing: 2px;
+            color: var(--text-color);
+            text-shadow: 2px 2px 0px #ccc;
         }
 
         .subtitle {
-            color: var(--text-dim);
-            font-size: 1.2rem;
-            letter-spacing: 2px;
+            font-family: 'Patrick Hand', cursive;
+            color: #666;
+            font-size: 1.5rem;
             margin-top: 0.5rem;
             text-transform: uppercase;
+            font-weight: bold;
         }
 
         /* --- Layout --- */
@@ -89,47 +91,28 @@
         }
 
         .panel {
-            background: var(--bg-panel);
-            backdrop-filter: blur(10px);
-            border: var(--glass-border);
-            border-radius: 1rem;
+            background: var(--panel-bg);
+            border: var(--border-width) solid var(--border-color);
             padding: 2rem;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
             position: relative;
-            overflow: hidden;
-        }
-
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary-neon), var(--secondary-neon));
-            box-shadow: 0 0 10px var(--primary-neon);
+            border-radius: 0; /* Hard corners for comic look */
         }
 
         h2 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--primary-neon);
+            font-family: 'Patrick Hand', cursive;
+            color: var(--text-color);
             margin-top: 0;
             margin-bottom: 1.5rem;
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             display: flex;
             align-items: center;
             gap: 10px;
+            border-bottom: var(--border-width) solid var(--border-color);
+            padding-bottom: 0.5rem;
         }
 
-        h2::after {
-            content: '';
-            flex-grow: 1;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin-left: 1rem;
-        }
-
-        /* --- Controls & Inputs --- */
+        /* --- Controls --- */
         .controls-bar {
             display: flex;
             gap: 1rem;
@@ -137,96 +120,68 @@
             flex-wrap: wrap;
         }
 
-        button,
-        .btn-label {
-            background: rgba(0, 243, 255, 0.1);
-            border: 1px solid var(--primary-neon);
-            color: var(--primary-neon);
+        button, .btn-label {
+            background: #fff;
+            border: var(--border-width) solid var(--border-color);
+            color: var(--text-color);
             padding: 0.8rem 1.5rem;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.2rem;
+            font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            display: inline-block;
-            text-align: center;
+            transition: all 0.1s ease;
+            box-shadow: 3px 3px 0px var(--border-color);
+            border-radius: 0;
         }
 
-        button:hover,
-        .btn-label:hover {
-            background: var(--primary-neon);
-            color: #000;
-            box-shadow: 0 0 20px var(--primary-neon);
+        button:hover, .btn-label:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px var(--border-color);
+            background: #f0f0f0;
         }
 
-        button.btn-accent {
-            border-color: var(--secondary-neon);
-            color: var(--secondary-neon);
-            background: rgba(188, 19, 254, 0.1);
+        button:active, .btn-label:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px var(--border-color);
         }
 
-        button.btn-accent:hover {
-            background: var(--secondary-neon);
-            color: #fff;
-            box-shadow: 0 0 20px var(--secondary-neon);
-        }
+        button.btn-accent { background: #ffeaea; }
+        button.btn-accent:hover { background: #ffcccc; }
+        button.btn-success { background: #eaffea; }
+        button.btn-success:hover { background: #ccffcc; }
 
-        button.btn-success {
-            border-color: var(--accent-neon);
-            color: var(--accent-neon);
-            background: rgba(0, 255, 157, 0.1);
-        }
-
-        button.btn-success:hover {
-            background: var(--accent-neon);
-            color: #000;
-            box-shadow: 0 0 20px var(--accent-neon);
-        }
-
-        select,
-        input[type="number"] {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #444;
-            color: #fff;
+        select, input[type="number"] {
+            background: #fff;
+            border: var(--border-width) solid var(--border-color);
+            color: var(--text-color);
             padding: 0.8rem;
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Comic Neue', cursive;
             font-size: 1.1rem;
+            font-weight: bold;
             width: 100%;
-            border-radius: 4px;
-        }
-
-        select:focus,
-        input:focus {
-            outline: none;
-            border-color: var(--primary-neon);
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+            border-radius: 0;
+            box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
         }
 
         /* --- Workspace --- */
         #blockly-workspace {
             height: 600px;
             width: 100%;
-            border: 1px solid #333;
-            background: rgba(0, 0, 0, 0.3);
+            border: var(--border-width) solid var(--border-color);
+            background: #f9f9f9;
         }
 
-        /* Blockly Overrides for Dark Theme */
+        /* Blockly Overrides for Comic Theme */
         .blocklyToolboxDiv {
-            background-color: #1a1a2e !important;
-            color: #fff;
-            border-right: 1px solid #333;
+            background-color: #eee !important;
+            color: #000;
+            border-right: var(--border-width) solid var(--border-color);
         }
-
-        .blocklyFlyoutBackground {
-            fill: #1a1a2e !important;
-            fill-opacity: 0.9 !important;
-        }
-
         .blocklyTreeLabel {
-            color: #fff !important;
-            font-family: 'Rajdhani', sans-serif;
+            color: #000 !important;
+            font-family: 'Comic Neue', cursive;
+            font-weight: bold;
         }
 
         /* --- Results --- */
@@ -238,74 +193,53 @@
         }
 
         .score-card {
-            background: rgba(0, 0, 0, 0.3);
+            background: #fff;
             padding: 1.5rem;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
+            border: var(--border-width) solid var(--border-color);
+            box-shadow: 3px 3px 0px var(--border-color);
         }
 
         .score-card h3 {
             margin: 0;
-            font-size: 1rem;
-            color: var(--text-dim);
+            font-size: 1.2rem;
+            color: #666;
             text-transform: uppercase;
+            font-family: 'Patrick Hand', cursive;
         }
 
         .score-value {
             font-size: 3.5rem;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Patrick Hand', cursive;
             font-weight: 700;
             margin: 0.5rem 0;
-            text-shadow: 0 0 15px currentColor;
         }
 
-        .score-p1 {
-            color: var(--primary-neon);
-        }
-
-        .score-p2 {
-            color: var(--secondary-neon);
-        }
+        .score-p1 { color: var(--secondary-accent); }
+        .score-p2 { color: var(--primary-accent); }
 
         .log-container {
             height: 300px;
             overflow-y: auto;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #333;
+            background: #fff;
+            border: var(--border-width) solid var(--border-color);
             padding: 1rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
+            font-family: 'Comic Neue', cursive;
+            font-size: 1rem;
+            font-weight: bold;
         }
 
         .log-entry {
             display: flex;
             justify-content: space-between;
             padding: 0.4rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px dashed #ccc;
         }
-
-        .log-entry:last-child {
-            border-bottom: none;
-        }
-
-        .log-move {
-            font-weight: bold;
-        }
-
-        .move-cooperate {
-            color: var(--accent-neon);
-        }
-
-        .move-defect {
-            color: #ff0055;
-        }
+        .move-cooperate { color: var(--success-color); }
+        .move-defect { color: var(--primary-accent); }
 
         /* --- Tournament Section --- */
-        .tournament-section {
-            margin-top: 2rem;
-            grid-column: 1 / -1;
-        }
+        .tournament-section { margin-top: 2rem; grid-column: 1 / -1; }
 
         .strategy-list {
             display: grid;
@@ -315,155 +249,116 @@
         }
 
         .strategy-item {
-            background: rgba(255, 255, 255, 0.05);
+            background: #fff;
             padding: 1rem;
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            border: 1px solid transparent;
+            border: 2px solid #eee;
             transition: all 0.2s;
         }
-
         .strategy-item:hover {
-            border-color: var(--primary-neon);
-            background: rgba(0, 243, 255, 0.05);
+            border-color: var(--border-color);
+            box-shadow: 3px 3px 0px var(--border-color);
         }
 
-        input[type="checkbox"] {
-            accent-color: var(--primary-neon);
-            width: 1.2rem;
-            height: 1.2rem;
-        }
-
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
+        .results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         .results-table th {
-            text-align: left;
-            padding: 1rem;
-            color: var(--text-dim);
-            border-bottom: 1px solid #444;
-            font-family: 'Orbitron', sans-serif;
+            text-align: left; padding: 1rem; color: #000;
+            border-bottom: var(--border-width) solid var(--border-color);
+            font-family: 'Patrick Hand', cursive; font-size: 1.2rem;
         }
-
-        .results-table td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .rank-1 {
-            color: #ffd700;
-            text-shadow: 0 0 10px #ffd700;
-        }
-
-        .rank-2 {
-            color: #c0c0c0;
-        }
-
-        .rank-3 {
-            color: #cd7f32;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #050510;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
-        }
+        .results-table td { padding: 1rem; border-bottom: 1px solid #eee; font-weight: bold; }
+        .rank-1 { color: #eebb00; font-size: 1.2em; }
     </style>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <h1>Neon Prisoner</h1>
-            <div class="subtitle">Algorithmic Game Theory Simulation</div>
+            <div class="hero-image">[COMIC IMAGE HERE]</div>
+            <h1>PRISONER'S DILEMMA</h1>
+            <div class="subtitle">A Game of Trust (and Betrayal)</div>
         </header>
 
         <div class="main-grid">
             <div class="panel">
-                <h2>Strategy Design Interface</h2>
+                <h2>
+                    <span>STRATEGY DECK</span>
+                    <div style="flex-grow:1"></div>
+                    <button id="new-algorithm" class="btn-label" style="font-size:1rem; padding:0.4rem 0.8rem">RESET</button>
+                </h2>
                 <div id="blockly-workspace"></div>
-                
+
                 <div class="controls-bar">
-                    <button id="new-algorithm" class="btn-accent">New Strategy</button>
-                    <button id="clear-workspace">Clear</button>
-                    <button id="save-strategy">Download XML</button>
-                    
-                    <label class="btn-label" for="upload-strategy">Upload XML</label>
-                    <input type="file" id="upload-strategy" accept=".xml" style="display: none;">
+                    <button id="test-algorithm" class="btn-success">TEST IT!</button>
+                    <button id="save-strategy">SAVE XML</button>
+                    <label class="btn-label" style="cursor:pointer">
+                        LOAD XML <input type="file" id="upload-strategy" accept=".xml" style="display:none">
+                    </label>
+                    <button id="clear-workspace" class="btn-accent">CLEAR</button>
                 </div>
             </div>
 
             <div class="panel">
-                <h2>Battle Simulation</h2>
-                
+                <h2>SIMULATION</h2>
+
                 <div class="score-board">
-                    <div class="score-card">
-                        <h3>Your Score</h3>
-                        <div id="your-score" class="score-value score-p1">0</div>
+                    <div class="score-card score-p1">
+                        <h3>YOU</h3>
+                        <div id="your-score" class="score-value">0</div>
                     </div>
-                    <div class="score-card">
-                        <h3>Opponent</h3>
-                        <div id="opponent-score" class="score-value score-p2">0</div>
+                    <div class="score-card score-p2">
+                        <h3>THEM</h3>
+                        <div id="opponent-score" class="score-value">0</div>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 1rem;">
-                    <label style="color: var(--text-dim); font-size: 0.9rem;">OPPONENT STRATEGY</label>
-                    <select id="opponent-strategy" style="margin-top: 0.5rem;"></select>
+                <div style="margin-bottom: 1rem; display:flex; gap:1rem; align-items:center;">
+                    <div style="flex:1">
+                        <label style="color:#000; font-family:'Patrick Hand'; font-size:1.1rem; display:block; margin-bottom:0.5rem">OPPONENT</label>
+                        <select id="opponent-strategy"></select>
+                    </div>
+                    <div style="width:100px">
+                        <label style="color:#000; font-family:'Patrick Hand'; font-size:1.1rem; display:block; margin-bottom:0.5rem">ROUNDS</label>
+                        <input type="number" id="rounds" value="100" min="1" max="1000">
+                    </div>
                 </div>
 
-                <div style="margin-bottom: 1rem;">
-                    <label style="color: var(--text-dim); font-size: 0.9rem;">ROUNDS</label>
-                    <input type="number" id="rounds" value="50" min="1" max="1000" style="margin-top: 0.5rem;">
-                </div>
-
-                <button id="test-algorithm" class="btn-success" style="width: 100%;">Run Simulation</button>
-
-                <div style="margin-top: 1.5rem;">
-                    <label style="color: var(--text-dim); font-size: 0.9rem; display:block; margin-bottom:0.5rem;">BATTLE LOG</label>
-                    <div id="game-log-content" class="log-container"></div>
-                </div>
+                <div id="game-log-content" class="log-container"></div>
             </div>
 
             <div class="panel tournament-section">
-                <h2>Grand Tournament</h2>
-                <p style="color: var(--text-dim);">Select strategies to compete in a Round Robin tournament.</p>
+                <h2>TOURNAMENT MODE</h2>
+                <p style="color:#666; font-family:'Comic Neue'; margin-bottom:1rem">Who is the best prisoner? Fight!</p>
 
-                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
-                    <label class="btn-label" for="upload-tournament-strategies">
-                        + Upload Strategies
-                    </label>
-                    <input type="file" id="upload-tournament-strategies" accept=".xml" multiple style="display: none;">
-                    <span style="color: #666; font-size: 0.9rem;">(Upload multiple XML files)</span>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem">
+                    <div>
+                        <h3 style="color:#000; font-family:'Patrick Hand'; font-size:1.2rem; border-bottom:2px solid #000; padding-bottom:0.5rem">PRESETS</h3>
+                        <div id="preset-strategies-list" class="strategy-list"></div>
+                    </div>
+                    <div>
+                        <h3 style="color:#000; font-family:'Patrick Hand'; font-size:1.2rem; border-bottom:2px solid #000; padding-bottom:0.5rem">CUSTOM UPLOADS</h3>
+                        <div class="controls-bar" style="margin-top:0; margin-bottom:1rem">
+                            <label class="btn-label" style="width:100%; text-align:center; cursor:pointer">
+                                + UPLOAD STRATEGIES
+                                <input type="file" id="upload-tournament-strategies" accept=".xml" multiple style="display:none">
+                            </label>
+                        </div>
+                        <div id="uploaded-files-list" class="strategy-list"></div>
+                    </div>
                 </div>
 
-                <div id="uploaded-files-list" class="strategy-list">
-                    </div>
+                <button id="run-tournament" class="btn-accent" style="width:100%; margin-top:1rem; font-size:1.5rem; padding:1.2rem">RUN TOURNAMENT</button>
 
-                <div id="preset-strategies-list" class="strategy-list" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
-                    </div>
-
-                <button id="run-tournament" class="btn-accent" style="width: 100%; margin-top: 1rem;">Run Tournament</button>
-
-                <div id="tournament-results-container" style="display: none; margin-top: 2rem;">
+                <div id="tournament-results-container" style="display:none; margin-top:2rem">
+                    <h3 style="color:#000; text-align:center; margin-bottom:1rem; font-family:'Patrick Hand'; font-size:2rem">LEADERBOARD</h3>
                     <table class="results-table">
                         <thead>
                             <tr>
-                                <th>Rank</th>
-                                <th>Strategy Name</th>
-                                <th style="text-align: right;">Total Score</th>
+                                <th>RANK</th>
+                                <th>STRATEGY</th>
+                                <th style="text-align:right">SCORE</th>
                             </tr>
                         </thead>
                         <tbody id="tournament-results-body"></tbody>
@@ -474,14 +369,14 @@
     </div>
 
     <script>
-        // --- RECONSTRUCTED MISSING BLOCK DEFINITION ---
+        // --- 1. Define Custom Blocks (Missing in your file) ---
         Blockly.Blocks['prisoner_decision'] = {
             init: function () {
                 this.appendDummyInput()
                     .appendField("Decision")
                     .appendField(new Blockly.FieldDropdown([["COOPERATE", "COOPERATE"], ["DEFECT", "DEFECT"]]), "DECISION");
                 this.setOutput(true, "Decision");
-                this.setColour(180);
+                this.setColour(160);
             }
         };
 
@@ -503,72 +398,49 @@
 
         Blockly.Blocks['return_decision'] = {
             init: function () {
-                this.appendValueInput("DECISION").setCheck("Decision").appendField("return");
+                this.appendValueInput("DECISION").setCheck("Decision").appendField("Play Card:");
                 this.setPreviousStatement(true, null);
-                this.setColour(180);
+                this.setColour(160);
             }
         };
 
+        // --- 2. Define Generators ---
         Blockly.JavaScript['prisoner_decision'] = (b) => [`'${b.getFieldValue('DECISION')}'`, Blockly.JavaScript.ORDER_ATOMIC];
-        
         Blockly.JavaScript['opponent_last_move'] = (b) => ['opponentLastMove', Blockly.JavaScript.ORDER_ATOMIC];
-        
         Blockly.JavaScript['round_number'] = (b) => ['roundNumber', Blockly.JavaScript.ORDER_ATOMIC];
-
         Blockly.JavaScript['return_decision'] = (b) => `return ${Blockly.JavaScript.valueToCode(b, 'DECISION', Blockly.JavaScript.ORDER_NONE) || "'COOPERATE'"};\n`;
 
-        Blockly.JavaScript['variables_set'] = function (b) {
-            return `variables['${Blockly.JavaScript.variableDB_.getName(b.getFieldValue('VAR'), 'VARIABLE')}']=${Blockly.JavaScript.valueToCode(b, 'VALUE', Blockly.JavaScript.ORDER_ASSIGNMENT) || '0'};\n`
-        };
-
-        Blockly.JavaScript['variables_get'] = function (b) {
-            return [`variables['${Blockly.JavaScript.variableDB_.getName(b.getFieldValue('VAR'), 'VARIABLE')}']`, Blockly.JavaScript.ORDER_ATOMIC]
-        };
-
-        Blockly.JavaScript['math_change'] = function (b) {
-            const v = Blockly.JavaScript.variableDB_.getName(b.getFieldValue('VAR'), 'VARIABLE');
-            const d = Blockly.JavaScript.valueToCode(b, 'DELTA', Blockly.JavaScript.ORDER_ADDITION) || '0';
-            return `variables['${v}']=(typeof variables['${v}']==='number'?variables['${v}']:0)+Number(${d});\n`
-        };
-
-        // --- Toolbox Definition ---
+        // --- 3. Define Toolbox ---
         const toolbox = {
             "kind": "categoryToolbox",
-            "contents": [{
-                "kind": "category",
-                "name": "Decisions",
-                "colour": "180",
-                "contents": [{ "kind": "block", "type": "prisoner_decision" }, { "kind": "block", "type": "return_decision" }]
-            },
-            {
-                "kind": "category",
-                "name": "Game State",
-                "colour": "230",
-                "contents": [{ "kind": "block", "type": "opponent_last_move" }, { "kind": "block", "type": "round_number" }]
-            },
-            {
-                "kind": "category",
-                "name": "Logic",
-                "colour": "210",
-                "contents": [{ "kind": "block", "type": "controls_if" }, { "kind": "block", "type": "logic_compare" }]
-            },
-            {
-                "kind": "category",
-                "name": "Math",
-                "colour": "280",
-                "contents": [{ "kind": "block", "type": "math_number" }, { "kind": "block", "type": "math_arithmetic" }, { "kind": "block", "type": "math_random_float" }]
-            },
-            {
-                "kind": "category", "name": "Variables", "custom": "VARIABLE", "colour": "330"
-            }]
+            "contents": [
+                {
+                    "kind": "category", "name": "Decisions", "colour": "160",
+                    "contents": [{ "kind": "block", "type": "prisoner_decision" }, { "kind": "block", "type": "return_decision" }]
+                },
+                {
+                    "kind": "category", "name": "Game State", "colour": "230",
+                    "contents": [{ "kind": "block", "type": "opponent_last_move" }, { "kind": "block", "type": "round_number" }]
+                },
+                {
+                    "kind": "category", "name": "Logic", "colour": "210",
+                    "contents": [{ "kind": "block", "type": "controls_if" }, { "kind": "block", "type": "logic_compare" }]
+                },
+                {
+                    "kind": "category", "name": "Math", "colour": "280",
+                    "contents": [{ "kind": "block", "type": "math_number" }, { "kind": "block", "type": "math_arithmetic" }, { "kind": "block", "type": "math_random_float" }]
+                },
+                { "kind": "category", "name": "Variables", "custom": "VARIABLE", "colour": "330" }
+            ]
         };
 
-        // --- Game Engine ---
+        // --- 4. Game Engine ---
         class GameEngine {
             constructor() {
-                // ONLY RANDOM STRATEGY ALLOWED AS PRESET
                 this.strats = {
-                    'random': () => Math.random() > 0.5 ? 'COOPERATE' : 'DEFECT'
+                    'random': () => Math.random() > 0.5 ? 'COOPERATE' : 'DEFECT',
+                    'always_defect': () => 'DEFECT',
+                    'always_cooperate': () => 'COOPERATE'
                 };
             }
 
@@ -591,11 +463,16 @@
                     };
 
                     try {
-                        const p1m = algorithm(p1Ctx);
-                        const p2m = this.strats[vs](p2Ctx);
+                        let p1m = algorithm(p1Ctx);
+                        let p2m = this.strats[vs](p2Ctx);
+                        // Safety check
+                        if (p1m !== 'COOPERATE' && p1m !== 'DEFECT') p1m = 'COOPERATE';
+                        if (p2m !== 'COOPERATE' && p2m !== 'DEFECT') p2m = 'COOPERATE';
+
                         const sc = this.scores(p1m, p2m);
                         p1s += sc.p1;
                         p2s += sc.p2;
+
                         history.push({ r, p1: p1m, p2: p2m, p1Score: sc.p1, p2Score: sc.p2 });
                     } catch (e) {
                         alert("Error running algorithm: " + e.message);
@@ -613,18 +490,18 @@
             }
         }
 
-        // --- Application Setup ---
+        // --- 5. Application Setup ---
         let workspace = null;
         const gameEngine = new GameEngine();
         let uploadedStrategies = [];
 
         window.addEventListener('load', () => {
-            // Dark Theme for Blockly
             workspace = Blockly.inject('blockly-workspace', {
                 toolbox: toolbox,
                 trashcan: true,
-                theme: Blockly.Themes.Dark
+                theme: Blockly.Themes.Classic
             });
+
             loadDefaultAlgorithm();
             setupEventListeners();
             setupUI();
@@ -642,7 +519,10 @@
 
             const presetsContainer = document.getElementById('preset-strategies-list');
             presetsContainer.innerHTML = Object.keys(gameEngine.strats).map(name => 
-                `<div class="strategy-item"><input type="checkbox" id="preset-${name}" value="${name}" checked> <label for="preset-${name}" style="cursor:pointer">${name.toUpperCase()}</label></div>`
+                `<div class="strategy-item"> 
+                    <input type="checkbox" id="preset-${name}" value="${name}" checked>
+                    <label for="preset-${name}" style="cursor:pointer">${name.toUpperCase()}</label>
+                </div>`
             ).join('');
         }
 
@@ -660,5 +540,237 @@
 
         function loadDefaultAlgorithm() {
             workspace.clear();
-            // Simple default: Cooperate first, then copy
-            const xml = `<xml xmlns
+            // Fixed the broken XML string from your original file
+            const xml = `<xml xmlns="https://developers.google.com/blockly/xml">
+                <block type="controls_if" x="50" y="50">
+                    <mutation else="1"></mutation>
+                    <value name="IF0">
+                        <block type="logic_compare">
+                            <field name="OP">EQ</field>
+                            <value name="A"><block type="round_number"></block></value>
+                            <value name="B"><block type="math_number"><field name="NUM">1</field></block></value>
+                        </block>
+                    </value>
+                    <statement name="DO0">
+                        <block type="return_decision">
+                            <value name="DECISION"><block type="prisoner_decision"><field name="DECISION">COOPERATE</field></block></value>
+                        </block>
+                    </statement>
+                    <statement name="ELSE">
+                        <block type="return_decision">
+                            <value name="DECISION"><block type="opponent_last_move"></block></value>
+                        </block>
+                    </statement>
+                </block>
+            </xml>`;
+
+            try {
+                Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(xml), workspace);
+            } catch (e) {
+                console.error("Default algo error", e);
+            }
+        }
+
+        function testAlgorithm() {
+            const code = Blockly.JavaScript.workspaceToCode(workspace);
+            if (!code) { alert("Workspace is empty!"); return; }
+
+            const algorithm = new Function('context', `const { roundNumber, opponentLastMove, variables } = context; ${code} return "COOPERATE";`);
+            const opponentName = document.getElementById('opponent-strategy').value;
+            const rounds = parseInt(document.getElementById('rounds').value);
+
+            const result = gameEngine.run(algorithm, opponentName, rounds);
+            if (!result) return;
+
+            animateValue(document.getElementById('your-score'), 0, result.p1s, 1000);
+            animateValue(document.getElementById('opponent-score'), 0, result.p2s, 1000);
+
+            const logContainer = document.getElementById('game-log-content');
+            logContainer.innerHTML = result.history.map(h => {
+                const p1Class = h.p1 === 'COOPERATE' ? 'move-cooperate' : 'move-defect';
+                const p2Class = h.p2 === 'COOPERATE' ? 'move-cooperate' : 'move-defect';
+                return `<div class="log-entry">
+                    <span>R${h.r}</span>
+                    <span class="log-move ${p1Class}">YOU: ${h.p1.substring(0, 1)}</span>
+                    <span class="log-move ${p2Class}">THEM: ${h.p2.substring(0, 1)}</span>
+                    <span>${h.p1Score}-${h.p2Score}</span>
+                </div>`;
+            }).join('');
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // --- File Handling ---
+        function saveStrategy() {
+            const xml = Blockly.Xml.workspaceToDom(workspace);
+            const xmlText = Blockly.Xml.domToText(xml);
+            const blob = new Blob([xmlText], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'comic_strategy.xml';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function loadStrategy(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const xml = Blockly.Xml.textToDom(e.target.result);
+                    workspace.clear();
+                    Blockly.Xml.domToWorkspace(xml, workspace);
+                } catch (e) { alert('Invalid strategy file.'); }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // --- Tournament Logic ---
+        function handleTournamentFileUpload(event) {
+            const files = event.target.files;
+            const list = document.getElementById('uploaded-files-list');
+            Array.from(files).forEach(file => {
+                const name = file.name.replace(/\.xml$|\.txt$/, '');
+                if (uploadedStrategies.some(s => s.name === name)) return;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    uploadedStrategies.push({ name: name, xml: e.target.result });
+                    const div = document.createElement('div');
+                    div.className = 'strategy-item';
+                    div.innerHTML = `<input type="checkbox" id="custom-${name}" value="${name}" checked> <label for="custom-${name}" style="cursor:pointer">${name}</label>`;
+                    list.appendChild(div);
+                };
+                reader.readAsText(file);
+            });
+            event.target.value = '';
+        }
+
+        let tournamentState = {};
+
+        function runTournament() {
+            const btn = document.getElementById('run-tournament');
+            btn.disabled = true;
+            btn.textContent = 'PROCESSING...';
+            document.getElementById('tournament-results-container').style.display = 'none';
+
+            tournamentState = {
+                players: [],
+                totalScores: {},
+                pairings: [],
+                currentIndex: 0
+            };
+
+            // Gather Players
+            document.querySelectorAll('#preset-strategies-list input:checked').forEach(cb => {
+                tournamentState.players.push({ name: cb.value, strategyFn: gameEngine.strats[cb.value] });
+                tournamentState.totalScores[cb.value] = 0;
+            });
+
+            document.querySelectorAll('#uploaded-files-list input:checked').forEach(cb => {
+                const data = uploadedStrategies.find(s => s.name === cb.value);
+                if (data) {
+                    try {
+                        const xml = Blockly.Xml.textToDom(data.xml);
+                        const tmpWs = new Blockly.Workspace();
+                        Blockly.Xml.domToWorkspace(xml, tmpWs);
+                        const code = Blockly.JavaScript.workspaceToCode(tmpWs);
+                        tmpWs.dispose();
+                        const fn = new Function('context', `const { roundNumber, opponentLastMove, variables } = context; ${code} return "COOPERATE";`);
+                        tournamentState.players.push({ name: data.name, strategyFn: fn });
+                        tournamentState.totalScores[data.name] = 0;
+                    } catch (e) { console.error("Error parsing strategy", data.name); }
+                }
+            });
+
+            if (tournamentState.players.length < 2) {
+                alert("Select at least 2 strategies for a tournament.");
+                btn.disabled = false;
+                btn.textContent = 'RUN TOURNAMENT';
+                return;
+            }
+
+            // Generate Pairings
+            for (let i = 0; i < tournamentState.players.length; i++) {
+                for (let j = i; j < tournamentState.players.length; j++) {
+                    tournamentState.pairings.push({ p1: i, p2: j });
+                }
+            }
+            processNextGame();
+        }
+
+        function processNextGame() {
+            if (tournamentState.currentIndex >= tournamentState.pairings.length) {
+                finishTournament();
+                return;
+            }
+
+            const pair = tournamentState.pairings[tournamentState.currentIndex];
+            const player1 = tournamentState.players[pair.p1];
+            const player2 = tournamentState.players[pair.p2];
+            const rounds = 100;
+            let p1s = 0, p2s = 0;
+            let h1 = [], h2 = [];
+
+            for (let r = 1; r <= rounds; r++) {
+                const p1Ctx = { roundNumber: r, opponentLastMove: h2.length > 0 ? h2[h2.length - 1] : null, opponentHistory: h2 };
+                const p2Ctx = { roundNumber: r, opponentLastMove: h1.length > 0 ? h1[h1.length - 1] : null, opponentHistory: h1 };
+                let m1 = 'COOPERATE', m2 = 'COOPERATE';
+                try { m1 = player1.strategyFn(p1Ctx); } catch (e) { }
+                try { m2 = player2.strategyFn(p2Ctx); } catch (e) { }
+                
+                if (m1 !== 'COOPERATE' && m1 !== 'DEFECT') m1 = 'COOPERATE';
+                if (m2 !== 'COOPERATE' && m2 !== 'DEFECT') m2 = 'COOPERATE';
+                
+                const scores = gameEngine.scores(m1, m2);
+                p1s += scores.p1;
+                p2s += scores.p2;
+                h1.push(m1);
+                h2.push(m2);
+            }
+
+            if (pair.p1 === pair.p2) {
+                tournamentState.totalScores[player1.name] += p1s;
+            } else {
+                tournamentState.totalScores[player1.name] += p1s;
+                tournamentState.totalScores[player2.name] += p2s;
+            }
+
+            tournamentState.currentIndex++;
+            const pct = Math.round((tournamentState.currentIndex / tournamentState.pairings.length) * 100);
+            document.getElementById('run-tournament').textContent = `SIMULATING... ${pct}%`;
+            setTimeout(processNextGame, 0);
+        }
+
+        function finishTournament() {
+            document.getElementById('run-tournament').disabled = false;
+            document.getElementById('run-tournament').textContent = 'RUN TOURNAMENT';
+            const tbody = document.getElementById('tournament-results-body');
+            tbody.innerHTML = '';
+            const sorted = Object.entries(tournamentState.totalScores).sort((a, b) => b[1] - a[1]);
+
+            sorted.forEach(([name, score], idx) => {
+                const tr = document.createElement('tr');
+                const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+                tr.innerHTML = `<td class="${rankClass}">#${idx + 1}</td>
+                                <td style="font-weight:bold; color:var(--text-color)">${name.toUpperCase()}</td>
+                                <td style="text-align:right; font-family:'Patrick Hand'">${score}</td>`;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('tournament-results-container').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
